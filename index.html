@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ask Me To Dance — The App · Plan for Luke Martz</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders:opsz,wght@10..72,500;10..72,700;10..72,800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --floor:#17100B;        /* dance floor at night */
+    --panel:#221812;        /* raised wood panel */
+    --panel-2:#2B1F16;
+    --burnt:#BF5700;        /* official AMTD burnt orange */
+    --ember:#E8722C;        /* lit-up orange */
+    --cream:#F3E5CE;        /* lamplight */
+    --sand:#A78F73;         /* muted caption */
+    --brass:#D9A441;        /* sign-off gold */
+    --line:rgba(243,229,206,.14);
+    --line-strong:rgba(243,229,206,.26);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--floor);
+    color:var(--cream);
+    font-family:"Instrument Sans",sans-serif;
+    font-size:17px;line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  ::selection{background:var(--burnt);color:var(--cream)}
+
+  .deck{scroll-snap-type:y proximity}
+  .slide{
+    min-height:100svh;
+    scroll-snap-align:start;
+    display:flex;align-items:center;
+    padding:clamp(4.5rem,9vh,7rem) clamp(1.25rem,5vw,4rem);
+    position:relative;
+    border-bottom:1px solid var(--line);
+  }
+  .wrap{width:min(1080px,100%);margin:0 auto}
+
+  /* ---------- type ---------- */
+  .eyebrow{
+    font-family:"Space Mono",monospace;
+    font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;
+    color:var(--ember);display:flex;align-items:center;gap:.9rem;
+    margin-bottom:1.4rem;
+  }
+  .eyebrow::before{content:"";width:34px;height:2px;background:var(--burnt);display:inline-block}
+  .eyebrow .ph{color:var(--sand)}
+  h1,h2{
+    font-family:"Big Shoulders","Arial Narrow",sans-serif;
+    font-weight:800;text-transform:uppercase;line-height:.92;
+    letter-spacing:.005em;
+  }
+  h1{font-size:clamp(4rem,13vw,9.5rem)}
+  h2{font-size:clamp(2.6rem,6.5vw,4.6rem);margin-bottom:1.6rem}
+  h2 .o{color:var(--ember)}
+  h3{
+    font-family:"Big Shoulders",sans-serif;font-weight:700;
+    text-transform:uppercase;font-size:1.35rem;letter-spacing:.03em;
+    margin-bottom:.45rem;color:var(--cream);
+  }
+  .lede{font-size:clamp(1.05rem,1.6vw,1.28rem);color:var(--cream);max-width:56ch}
+  .lede b{color:var(--ember);font-weight:600}
+  p.muted, .muted{color:var(--sand)}
+  .kicker{color:var(--sand);font-size:.95rem;max-width:60ch;margin-top:1.1rem}
+
+  /* ---------- the beat (signature) ---------- */
+  .beat{
+    display:flex;gap:.6rem;align-items:center;
+    font-family:"Space Mono",monospace;font-size:.8rem;letter-spacing:.18em;
+  }
+  .beat span{
+    padding:.35rem .7rem;border:1px solid var(--line-strong);
+    color:var(--sand);border-radius:2px;
+  }
+  .beat span.q{color:var(--ember);border-color:var(--burnt)}
+  @keyframes pulse{0%,100%{background:transparent;color:var(--sand)}12%{background:var(--burnt);color:var(--cream)}}
+  .beat.play span{animation:pulse 2.4s infinite}
+  .beat.play span:nth-child(1){animation-delay:0s}
+  .beat.play span:nth-child(2){animation-delay:.3s}
+  .beat.play span:nth-child(3){animation-delay:.6s}
+  .beat.play span:nth-child(4){animation-delay:1.2s}
+
+  /* ---------- cards & grids ---------- */
+  .grid{display:grid;gap:1rem;margin-top:2.2rem}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .card{
+    background:var(--panel);border:1px solid var(--line);
+    border-radius:6px;padding:1.4rem 1.35rem;
+  }
+  .card .tag{
+    font-family:"Space Mono",monospace;font-size:.66rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--ember);display:block;margin-bottom:.8rem;
+  }
+  .card p{color:var(--sand);font-size:.95rem}
+  .card p b{color:var(--cream);font-weight:600}
+  .card ul{list-style:none;margin-top:.6rem}
+  .card li{color:var(--sand);font-size:.95rem;padding:.28rem 0 .28rem 1.15rem;position:relative}
+  .card li::before{content:"·";color:var(--ember);position:absolute;left:.2rem;font-weight:700}
+  .card li b{color:var(--cream);font-weight:600}
+
+  .quote{
+    border-left:3px solid var(--burnt);
+    padding:.4rem 0 .4rem 1.4rem;margin-top:2.2rem;
+    font-size:clamp(1.15rem,2vw,1.5rem);font-style:italic;color:var(--cream);
+    max-width:44ch;
+  }
+  .quote small{display:block;font-style:normal;font-family:"Space Mono",monospace;
+    font-size:.68rem;letter-spacing:.22em;color:var(--sand);margin-top:.7rem;text-transform:uppercase}
+
+  /* ---------- price board ---------- */
+  .board{
+    background:var(--panel);border:1px solid var(--line-strong);border-radius:8px;
+    margin-top:2rem;overflow:hidden;
+  }
+  .board .row{
+    display:grid;grid-template-columns:1fr auto;gap:1rem;align-items:baseline;
+    padding:1.05rem 1.4rem;border-bottom:1px dashed var(--line);
+  }
+  .board .row:last-child{border-bottom:none}
+  .board .name{font-weight:600}
+  .board .name small{display:block;color:var(--sand);font-weight:400;font-size:.85rem;margin-top:.15rem}
+  .price{
+    font-family:"Big Shoulders",sans-serif;font-weight:800;font-size:1.9rem;
+    color:var(--ember);white-space:nowrap;
+  }
+  .price .was{color:var(--sand);text-decoration:line-through;font-size:1.1rem;
+    font-weight:500;margin-right:.5rem}
+  .badge{
+    font-family:"Space Mono",monospace;font-size:.6rem;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--floor);background:var(--brass);
+    border-radius:2px;padding:.2rem .45rem;margin-left:.6rem;vertical-align:middle;
+    white-space:nowrap;
+  }
+
+  /* ---------- roadmap floor markers ---------- */
+  .floorline{margin-top:2.4rem;position:relative;padding-left:1.6rem}
+  .floorline::before{content:"";position:absolute;left:6px;top:6px;bottom:6px;width:2px;
+    background:linear-gradient(var(--burnt),var(--line))}
+  .step{position:relative;padding:0 0 1.7rem 1.2rem}
+  .step::before{content:"";position:absolute;left:-1.6rem;top:.35rem;width:14px;height:14px;
+    border-radius:50%;background:var(--floor);border:3px solid var(--burnt)}
+  .step.now::before{background:var(--ember);box-shadow:0 0 0 5px rgba(232,114,44,.18)}
+  .step h3{margin-bottom:.2rem}
+  .step .when{font-family:"Space Mono",monospace;font-size:.66rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--ember)}
+  .step p{color:var(--sand);font-size:.95rem;max-width:62ch}
+  .step p b{color:var(--cream)}
+  .step ul{list-style:none;margin:.55rem 0 0}
+  .step li{color:var(--sand);font-size:.92rem;padding:.22rem 0 .22rem 1.1rem;position:relative;break-inside:avoid}
+  .step li::before{content:"·";color:var(--ember);position:absolute;left:.15rem;font-weight:700}
+  .step li b{color:var(--cream);font-weight:600}
+  .step ul.two{display:grid;grid-template-columns:1fr 1fr;gap:.1rem 2.2rem}
+  .step .get{margin-top:.9rem;color:var(--brass);font-size:.95rem;font-style:italic;max-width:66ch}
+  @media (max-width:760px){.step ul.two{grid-template-columns:1fr}}
+
+  /* two-column compare */
+  .compare{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:2.2rem}
+  .compare .card.bad .tag{color:var(--sand)}
+  .compare .card.good{border-color:var(--burnt);background:var(--panel-2)}
+
+  /* sign-off grid */
+  .signoffs{display:grid;grid-template-columns:repeat(2,1fr);gap:.6rem;margin-top:2rem;counter-reset:so}
+  .signoffs div{
+    background:var(--panel);border:1px solid var(--line);border-radius:5px;
+    padding:.85rem 1rem .85rem 3rem;font-size:.92rem;color:var(--sand);
+    position:relative;counter-increment:so;
+  }
+  .signoffs div b{color:var(--cream);font-weight:600}
+  .signoffs div::before{
+    content:counter(so,decimal-leading-zero);
+    position:absolute;left:.9rem;top:.85rem;
+    font-family:"Big Shoulders",sans-serif;font-weight:800;color:var(--ember);
+    font-size:1.15rem;
+  }
+
+  /* ---------- chrome: nav dots, counter, progress ---------- */
+  .dots{position:fixed;right:1.1rem;top:50%;transform:translateY(-50%);
+    display:flex;flex-direction:column;gap:.55rem;z-index:10}
+  .dots a{width:8px;height:8px;border-radius:50%;background:var(--line-strong);
+    display:block;transition:.25s}
+  .dots a.on{background:var(--ember);transform:scale(1.35)}
+  .dots a:focus-visible{outline:2px solid var(--ember);outline-offset:3px}
+  .counter{position:fixed;left:1.2rem;bottom:1.1rem;z-index:10;
+    font-family:"Space Mono",monospace;font-size:.68rem;letter-spacing:.22em;color:var(--sand)}
+  .counter b{color:var(--ember);font-weight:700}
+  .progress{position:fixed;top:0;left:0;height:3px;background:var(--burnt);width:0;z-index:11}
+  .hint{position:fixed;right:1.2rem;bottom:1.1rem;z-index:10;
+    font-family:"Space Mono",monospace;font-size:.62rem;letter-spacing:.2em;color:var(--sand);
+    text-transform:uppercase}
+
+  /* reveal */
+  .rv{opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
+  .rv.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion: reduce){
+    .rv{opacity:1;transform:none;transition:none}
+    .beat.play span{animation:none}
+    html{scroll-behavior:auto}
+  }
+
+  /* cover specifics */
+  .cover .wrap{text-align:left}
+  .cover h1 .line2{color:var(--ember);display:block}
+  .cover .beat{margin:2.2rem 0 1.6rem}
+  .cover .meta{font-family:"Space Mono",monospace;font-size:.7rem;letter-spacing:.24em;
+    text-transform:uppercase;color:var(--sand);margin-top:2.6rem}
+  .cover .meta b{color:var(--cream);font-weight:700}
+
+  .close{ text-align:center }
+  .close h2{font-size:clamp(3rem,8.5vw,6.5rem)}
+  .close .beat{justify-content:center;margin-top:2.2rem}
+
+  @media (max-width:900px){
+    .g3,.g4{grid-template-columns:1fr 1fr}
+    .compare,.signoffs{grid-template-columns:1fr}
+  }
+  @media (max-width:620px){
+    .g2,.g3,.g4{grid-template-columns:1fr}
+    .dots{display:none}
+    .hint{display:none}
+    .board .row{grid-template-columns:1fr;gap:.2rem}
+  }
+</style>
+</head>
+<body>
+<div class="progress" id="progress"></div>
+<nav class="dots" id="dots" aria-label="Slides"></nav>
+<div class="counter" id="counter"><b>01</b> / 16</div>
+<div class="hint">scroll · ↓</div>
+
+<main class="deck" id="deck">
+
+<!-- 01 · COVER -->
+<section class="slide cover" data-title="Cover">
+  <div class="wrap">
+    <div class="eyebrow rv">Ask Me To Dance <span class="ph">presents</span></div>
+    <h1 class="rv">The App<span class="line2">Is Coming.</span></h1>
+    <div class="beat play rv" aria-hidden="true">
+      <span class="q">Quick</span><span class="q">Quick</span><span>Slow</span><span>Slow</span>
+    </div>
+    <p class="lede rv">Built by the community, for the community — now with a front door,
+      a memory, and a plan to take it <b>national</b>.</p>
+    <p class="meta rv">A plan for <b>Luke Martz</b> · prepared by <b>Luke Kerner</b> · August 2026 ·
+      your feedback shapes what gets built</p>
+  </div>
+</section>
+
+<!-- 02 · WHY -->
+<section class="slide" data-title="Why">
+  <div class="wrap">
+    <div class="eyebrow rv">Count 02 <span class="ph">— why we're building this</span></div>
+    <h2 class="rv">Sunday night <span class="o">deserves better.</span></h2>
+    <div class="compare rv">
+      <div class="card bad">
+        <span class="tag">Tonight, without the app</span>
+        <ul>
+          <li>Paper sign-in sheet, two QR codes, same info typed every single week</li>
+          <li>People slip in the side door — some haven't paid since April</li>
+          <li>Polls live on Facebook, plans live in group texts, nothing lives together</li>
+          <li>Who came? Who's new? Who stopped coming? Nobody knows for sure</li>
+          <li>Follow-ups depend on memory — and memory drops leads</li>
+        </ul>
+      </div>
+      <div class="card good">
+        <span class="tag">Tonight, with the app</span>
+        <ul>
+          <li><b>One tap</b> and you're checked in — membership already knows you</li>
+          <li><b>No pay, no check-in.</b> The door is gated by the system, not by luck</li>
+          <li>Every visit, every dollar, every first-timer — <b>counted from night one</b></li>
+          <li>Carly sees a <b>live list</b> of who's in and who's not</li>
+          <li>Every person becomes a relationship you can actually keep</li>
+        </ul>
+      </div>
+    </div>
+    <blockquote class="quote rv">"It's built by the community, for the community."
+      <small>— the whole point, kept intact</small></blockquote>
+  </div>
+</section>
+
+<!-- 03 · BIG PICTURE -->
+<section class="slide" data-title="Big picture">
+  <div class="wrap">
+    <div class="eyebrow rv">Count 03 <span class="ph">— the big picture</span></div>
+    <h2 class="rv">Three products. <span class="o">One spine.</span></h2>
+    <div class="grid g3 rv">
+      <div class="card">
+        <span class="tag">1 · The member app</span>
+        <p><b>The dancer's home.</b> Check in, pay, see events, vote in polls, track your
+        level, watch recaps, find the photos. Everything that's scattered today, in one place.</p>
+      </div>
+      <div class="card">
+        <span class="tag">2 · The instructor engine</span>
+        <p><b>The sales machine.</b> Every student's goals and notes, follow-up nudges,
+        private lesson booking. Instructors earn more, work less, forget nobody.</p>
+      </div>
+      <div class="card">
+        <span class="tag">3 · The platform</span>
+        <p><b>The empire.</b> The same system, sold to instructors and studios across the
+        country. A new studio signs up in minutes — no tech skills, no developer, just a wizard.</p>
+      </div>
+    </div>
+    <blockquote class="quote rv">"My goal is to be the Arthur Murray of social dancing —
+      but bigger, better, and more welcoming."
+      <small>— Luke Martz · we're building the machine that gets you there</small></blockquote>
+  </div>
+</section>
+
+<!-- 04 · PHASE 1 HEADLINE -->
+<section class="slide" data-title="Phase 1">
+  <div class="wrap">
+    <div class="eyebrow rv">Count 04 <span class="ph">— phase one · what we build first</span></div>
+    <h2 class="rv">Phase 1: <span class="o">The Door.</span></h2>
+    <p class="lede rv">Check-in and payment, done so smoothly nobody thinks about it —
+      because that was always the original need. We launch it at a real Sunday Academy,
+      run it alongside Carly, and let the community shape it before anything else gets built.</p>
+    <div class="grid g3 rv">
+      <div class="card"><span class="tag">The promise</span>
+        <p><b>No pay, no check-in.</b> Members glide through. Walk-ins pay in seconds.
+        Everyone who enters is known by name and phone.</p></div>
+      <div class="card"><span class="tag">The pace</span>
+        <p><b>Web app first</b> — installs to the home screen like any app, and lets us
+        fix anything you flag in <b>minutes, not weeks</b>. App Store &amp; Google Play follow
+        once it's proven.</p></div>
+      <div class="card"><span class="tag">The bar</span>
+        <p><b>It cannot break at 4:55 PM on a Sunday.</b> Money and check-in logic get
+        tested harder than everything else, and there's a paper backup plan if the
+        venue Wi-Fi dies.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 05 · CHECK-IN THREE WAYS -->
+<section class="slide" data-title="Check-in">
+  <div class="wrap">
+    <div class="eyebrow rv">Count 05 <span class="ph">— phase one · check-in, three ways</span></div>
+    <h2 class="rv">Everyone gets a <span class="o">smooth entrance.</span></h2>
+    <div class="grid g3 rv">
+      <div class="card">
+        <span class="tag">Returning member</span>
+        <p><b>Tap. Green screen. Done.</b></p>
+        <ul>
+          <li>App already knows tonight's event</li>
+          <li>Membership or class pack resolves automatically</li>
+          <li>Big green confirmation to flash at the booth</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="tag">First-timer</span>
+        <p><b>60 seconds, once, ever.</b></p>
+        <ul>
+          <li>Name · phone · email (optional)</li>
+          <li>One waiver screen — signed once, never again</li>
+          <li>First-timer price shows automatically: <b>$25 struck to $15</b></li>
+          <li>Pay on the spot — card, Apple&nbsp;Pay, Google&nbsp;Pay, cash, or Venmo</li>
+        </ul>
+      </div>
+      <div class="card">
+        <span class="tag">Carly's kiosk</span>
+        <p><b>The booth, upgraded.</b></p>
+        <ul>
+          <li>Search anyone in two letters; create a walk-in in seconds</li>
+          <li>Flip-the-tablet payment flow</li>
+          <li><b>Live roster:</b> who's checked in, who's paid, who's flagged</li>
+          <li>Nobody jumps the line — the list says who's really in</li>
+        </ul>
+      </div>
+    </div>
+    <p class="kicker rv">Anti-cheat, quietly built in: a color-of-the-day checkmark (yesterday's
+      screenshot betrays itself), check-in only opens near event time, and Carly's list pings
+      the moment someone taps.</p>
+  </div>
+</section>
+
+<!-- 06 · PRICING BOARD -->
+<section class="slide" data-title="Pricing">
+  <div class="wrap">
+    <div class="eyebrow rv">Count 06 <span class="ph">— phase one · the price board</span></div>
+    <h2 class="rv">The menu, <span class="o">as discussed.</span></h2>
+    <p class="muted rv">Gold badge = awaiting your sign-off. Nothing goes live in the payment
+      system until you bless the numbers.</p>
+    <div class="board rv">
+      <div class="row">
+        <div class="name">Membership — auto-renews monthly<span class="badge">Your call</span>
+          <small>Covers: Sunday Technique class · Sunday Patterns class · the Sunday social ·
+          Friday at Mavericks (Pflugerville)</small></div>
+        <div class="price">$80<span style="font-size:1rem;color:var(--sand)">/mo</span></div>
+      </div>
+      <div class="row">
+        <div class="name">Sunday drop-in — both lessons, social included
+          <span class="badge">Your call</span>
+          <small>Technique + Patterns are always sold together, never separately</small></div>
+        <div class="price">$25</div>
+      </div>
+      <div class="row">
+        <div class="name">First-timer's Sunday<span class="badge">Your call</span>
+          <small>Shows on their screen as a strike-through deal · automatic · once per person, ever</small></div>
+        <div class="price"><span class="was">$25</span>$15</div>
+      </div>
+      <div class="row">
+        <div class="name">Social only<span class="badge">Your call</span>
+          <small>Skip the lessons, join the party</small></div>
+        <div class="price">$10</div>
+      </div>
+      <div class="row">
+        <div class="name">Friday at Mavericks (Pflugerville)<span class="badge">Your call</span>
+          <small>Free for members · the raise you called</small></div>
+        <div class="price">$10</div>
+      </div>
+      <div class="row">
+        <div class="name">Class packs — Sunday nights only, good for 1 year
+          <span class="badge">Your call</span>
+          <small>1 credit = 1 full Academy night · non-transferable · refunds quietly at your
+          discretion, advertised nowhere</small></div>
+        <div class="price">4·$80&nbsp;&nbsp;8·$155&nbsp;&nbsp;12·$235</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 07 · MONEY -->
+<section class="slide" data-title="Payments">
+  <div class="wrap">
+    <div class="eyebrow rv">Count 07 <span class="ph">— phase one · how the money moves</span></div>
+    <h2 class="rv">Four ways to pay. <span class="o">Zero loose ends.</span></h2>
+    <div class="grid g4 rv">
+      <div class="card"><span class="tag">In the app</span>
+        <p><b>Stripe.</b> Card typed once — then it's one tap. Apple&nbsp;Pay and Google&nbsp;Pay
+        built in. Memberships and packs renew and top up here. Receipt lands by email
+        automatically.</p></div>
+      <div class="card"><span class="tag">At the door · card</span>
+        <p><b>Your Square reader</b>, exactly as today. Tap or insert; Square sends its own
+        text/email receipt; the booth logs the reference so the night reconciles.</p></div>
+      <div class="card"><span class="tag">Cash</span>
+        <p>Booth records it in two taps — who, how much, which class. The app issues its own
+        receipt by text or email if they want one.</p></div>
+      <div class="card"><span class="tag">Venmo</span>
+        <p>A <b>QR code right on the kiosk screen.</b> They scan, you get paid, the booth
+        confirms and logs it. No extra apps, no fees games.</p></div>
+    </div>
+    <p class="kicker rv"><b style="color:var(--cream)">Every dollar gets a receipt. Every night
+      reconciles.</b> The app totals each payment type against Stripe, Square, and the cash box —
+      and flags anything that doesn't line up before Monday.</p>
+  </div>
+</section>
+
+<!-- 08 · DOOR POWERS -->
+<section class="slide" data-title="Door powers">
+  <div class="wrap">
+    <div class="eyebrow rv">Count 08 <span class="ph">— phase one · judgment calls, made easy</span></div>
+    <h2 class="rv">The door works <span class="o">like you do.</span></h2>
+    <div class="grid g2 rv">
+      <div class="card"><span class="tag">Card failed? Your call.</span>
+        <p>A member's renewal declines — the booth sees a flag and <b>two buttons: Admit
+        under grace, or Decline.</b> A loyal regular with an expired card gets waved through in
+        one tap (logged). A stranger gaming the system gets a polite no. Never automatic,
+        never awkward.</p></div>
+      <div class="card"><span class="tag">Free where you say so</span>
+        <p><b>Standing list:</b> instructors, Carly, your helpers — flagged once by you, they
+        check in every week with payment skipped and the reason recorded. <b>One-night comps</b>
+        at the booth with a reason code. Everyone still counts in the numbers.</p></div>
+      <div class="card"><span class="tag">The waiver (with a kill switch)</span>
+        <p>First visit only: liability + 18-and-over + photo/video permission, signed by typing
+        their name. <b>Once per person, ever.</b> Don't want it? One toggle turns it off and the
+        screen disappears entirely.</p></div>
+      <div class="card"><span class="tag">The floor rule</span>
+        <p><b>Name and phone from everyone — including cash. No exceptions.</b> Worst case
+        scenario, you know exactly who was in the room. Email stays optional.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 09 · YOUR DASHBOARD -->
+<section class="slide" data-title="Dashboard">
+  <div class="wrap">
+    <div class="eyebrow rv">Count 09 <span class="ph">— phase one · what you see</span></div>
+    <h2 class="rv">Run the room <span class="o">from one screen.</span></h2>
+    <div class="grid g3 rv">
+      <div class="card"><span class="tag">Tonight, live</span>
+        <ul>
+          <li>Checked-in list, newest first, with a ping</li>
+          <li><b>First-timers highlighted</b> — go say hi</li>
+          <li>Paid / method / flagged, at a glance</li>
+          <li>"Says they paid, no record" — visible instantly</li>
+        </ul></div>
+      <div class="card"><span class="tag">Everyone, always</span>
+        <ul>
+          <li>Search any dancer: visits, last seen, status, level</li>
+          <li>Dancer levels set by you (New → Beginner → Beginner+ → Intermediate → Advanced → Instructor)</li>
+          <li>First-visit date on every profile</li>
+        </ul></div>
+      <div class="card"><span class="tag">The long game</span>
+        <ul>
+          <li><b>Every check-in, dollar, and detail captured from night one</b></li>
+          <li>Which class, which payment, first time or fifth</li>
+          <li>So in a year you can ask: is December dead or booming? Who's fading? What converts first-timers?</li>
+        </ul></div>
+    </div>
+    <p class="kicker rv">The full analytics dashboard arrives in Phase 3 — but it will read from
+      data we started keeping on the very first Sunday. Nothing is lost while we build.</p>
+  </div>
+</section>
+
+<!-- 10 · FAST FOLLOW -->
+<section class="slide" data-title="Fast follow">
+  <div class="wrap">
+    <div class="eyebrow rv">Count 10 <span class="ph">— right behind launch</span></div>
+    <h2 class="rv">Fast-follow #1: <span class="o">"Boom, I'm here."</span></h2>
+    <p class="lede rv">The endgame was always <b>self check-in</b> — a dancer walks into Wild
+      West, taps one button on their own phone, and they're in. No booth stop, no waiting on
+      Carly, no QR codes. The door runs itself even when she's mid-conversation across the room.</p>
+    <div class="grid g2 rv">
+      <div class="card"><span class="tag">Why not night one?</span>
+        <p>Because the first Sundays are for proving the money and the roster are bulletproof
+        with a human in the loop. <b>Two smooth live Sundays</b> is the trigger — then
+        self check-in ships immediately. It's committed, not "someday."</p></div>
+      <div class="card"><span class="tag">Kept honest</span>
+        <p>Self check-in opens only near event time, uses a rotating nightly code so screenshots
+        don't work, and still lights up Carly's list in real time. Fast for dancers,
+        cheat-proof for you.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 11 · PHASE 2 -->
+<section class="slide" data-title="Phase 2">
+  <div class="wrap">
+    <div class="eyebrow rv">Count 11 <span class="ph">— phase two · the community layer</span></div>
+    <h2 class="rv">Replace Facebook. <span class="o">Keep the family.</span></h2>
+    <div class="grid g3 rv">
+      <div class="card"><span class="tag">Events calendar</span>
+        <p>Every AMTD night plus the local dance scene — country, West Coast, all of it —
+        filtered to what each dancer cares about. The goal: <b>"we have to get our event on
+        the Ask Me To Dance app."</b></p></div>
+      <div class="card"><span class="tag">Polls with friends</span>
+        <p>"Where are we dancing tonight?" moves in-app. Pick favorites and get the nudge:
+        <b>"Luke voted he's going here — you in?"</b> Reminders you control, notifications
+        each dancer tunes.</p></div>
+      <div class="card"><span class="tag">Levels, visible</span>
+        <p>Dancers see their level and request a bump; you approve. The app quietly suggests:
+        <b>"10 classes + 5 Fridays — consider a bump?"</b> — one line, dismissible, never pushy.</p></div>
+      <div class="card"><span class="tag">Recap video archive</span>
+        <p>Every week's recap in one place — a real reason membership feels valuable the
+        other six days.</p></div>
+      <div class="card"><span class="tag">Photo &amp; video library</span>
+        <p>Retires the Google Drive folders. Your photographer uploads; dancers browse by
+        Sunday and <b>download everything in a tap.</b> Built per-studio from day one.</p></div>
+      <div class="card"><span class="tag">Smart reminders</span>
+        <p>"Academy tonight, 5 PM — see you there" goes automatic, with proper opt-in and
+        STOP handling, replacing the pay-per-text setup.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 12 · PHASE 3 -->
+<section class="slide" data-title="Phase 3">
+  <div class="wrap">
+    <div class="eyebrow rv">Count 12 <span class="ph">— phase three · the sales engine</span></div>
+    <h2 class="rv">"I'm a salesperson <span class="o">first."</span></h2>
+    <p class="lede rv">Phase 3 turns what's already in your head into a system any AMTD
+      instructor can run — <b>care first, follow-up always, nobody forgotten.</b></p>
+    <div class="grid g2 rv">
+      <div class="card"><span class="tag">Every dancer, remembered</span>
+        <p>Goals, notes, and history on every profile: <i>"wants to compete novice in six
+        months," "working on West Coast," "asked about privates twice."</i> The follow-up
+        nudge fires so the relationship never goes cold.</p></div>
+      <div class="card"><span class="tag">Private lessons, booked in-app</span>
+        <p>Instructor profiles with open time slots — a dancer taps, books, pays. The platform
+        takes its fair cut on lessons it originates; instructors fill their weeks without
+        chasing.</p></div>
+      <div class="card"><span class="tag">The analytics dashboard</span>
+        <p>Attendance trends, retention curves, first-timer conversion, revenue by night —
+        <b>your data, in your system</b>, with an export to GoHighLevel while it's useful.
+        Never dependent on it.</p></div>
+      <div class="card"><span class="tag">Merch &amp; win-backs, your hands on the dials</span>
+        <p>Discount codes you create and kill yourself — "NEW DANCER: 50% off a tee,"
+        third-visit rewards, come-back offers. No developer required to run a promotion.</p></div>
+    </div>
+    <blockquote class="quote rv">"People don't care how much you know until they know how
+      much you care." <small>— your sales rule, now with a memory that never drops a name</small></blockquote>
+  </div>
+</section>
+
+<!-- 13 · PHASE 4-5 -->
+<section class="slide" data-title="Phase 4–5">
+  <div class="wrap">
+    <div class="eyebrow rv">Count 13 <span class="ph">— phase four &amp; five · the empire</span></div>
+    <h2 class="rv">Then we <span class="o">sell the machine.</span></h2>
+    <div class="grid g3 rv">
+      <div class="card"><span class="tag">White-label studios</span>
+        <p>Any instructor in America signs up, names their academy, sets their prices, and
+        runs their whole business on this — <b>~$20/month, zero tech skills, five-minute
+        wizard.</b> Their data walled off from everyone else's, guaranteed.</p></div>
+      <div class="card"><span class="tag">Free tier, classy ads</span>
+        <p>A free version funded by <b>curated dance-world ads only</b> — boots, Fuegos,
+        events. Clean placements, never casino junk blocking buttons.</p></div>
+      <div class="card"><span class="tag">Instructor training program</span>
+        <p>The pathway you've built — with David Miller video lessons on <i>how to teach</i> —
+        as a paid track inside the app. "You have to know more than the person you're
+        teaching" becomes a curriculum.</p></div>
+      <div class="card"><span class="tag">Personal video coaching</span>
+        <p>The premium tier: dancers upload their video, you (or your instructors) mark it up —
+        <i>"right here, your timing slips."</i> A coach in their pocket, priced above
+        membership.</p></div>
+      <div class="card"><span class="tag">The honest AI concierge</span>
+        <p>2 AM inquiry? <b>"I'm an AI bot — I can help until an instructor reaches out in the
+        morning."</b> Transparent, useful, books the appointment. Your car-sales trick,
+        done right.</p></div>
+      <div class="card"><span class="tag">The far horizon</span>
+        <p>Computer-vision posture &amp; timing analysis · song identification with practice
+        playlists · 24/7 badge-in studio access. Wild ideas, real scaffolding — none of it
+        allowed to slow down Sunday.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 14 · BUILT NOT TO BREAK -->
+<section class="slide" data-title="Built safe">
+  <div class="wrap">
+    <div class="eyebrow rv">Count 14 <span class="ph">— how it's built · in plain english</span></div>
+    <h2 class="rv">Boring where it <span class="o">counts.</span></h2>
+    <div class="grid g2 rv">
+      <div class="card"><span class="tag">Money gets tested first</span>
+        <p>Anything touching payments, credits, or the door is <b>tested before it ships</b> —
+        including the ugly cases: double-taps, refunds, a card declining at 4:55.</p></div>
+      <div class="card"><span class="tag">Two AIs, checked by humans</span>
+        <p>One AI builds; a <b>second, independent AI reviews every change cold</b> against
+        written rules before it merges. Then it's rehearsed on a real device before a real
+        Sunday.</p></div>
+      <div class="card"><span class="tag">A plan for the bad night</span>
+        <p>Venue Wi-Fi dies mid-rush? There's a <b>rehearsed fallback</b>: numbered paper
+        roster, your Square reader keeps taking cards, and Monday morning everything
+        reconciles into the system. No improvising.</p></div>
+      <div class="card"><span class="tag">Your data, owned by you</span>
+        <p>Everything lives in <b>our own database</b> — not GoHighLevel, not anyone's
+        borrowed account. GHL becomes an export target while it's handy, never a
+        dependency. Every override and free entry is logged: who, when, why.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 15 · SIGN-OFFS + CLOSE -->
+<section class="slide close" data-title="Your part">
+  <div class="wrap">
+    <div class="eyebrow rv" style="justify-content:center">Count 15 <span class="ph">— your part</span></div>
+    <h2 class="rv">Ten calls are <span class="o">yours.</span></h2>
+    <p class="lede rv" style="margin:0 auto;max-width:52ch">Everything below is pre-loaded with
+      what we discussed — reply with just the numbers you'd change, and add anything on your
+      mind. <b>What's missing? What would make this yours?</b></p>
+    <div class="signoffs rv" style="text-align:left">
+      <div><b>Membership coverage</b> — Technique, Patterns, social, Friday Mavericks</div>
+      <div><b>Sunday pricing</b> — $25 incl. social · $10 social-only · $15 first-timer</div>
+      <div><b>Friday</b> — $10 drop-in, free for members, packs don't apply</div>
+      <div><b>Pack prices</b> — 4·$80 / 8·$155 / 12·$235, refunds at your discretion</div>
+      <div><b>The schedule</b> — Sunday + Friday only? Anything else recurring?</div>
+      <div><b>Grace flow</b> — Admit-under-grace / Decline buttons at the booth</div>
+      <div><b>The free list</b> — who's on standing comps (names + roles)</div>
+      <div><b>Waiver</b> — keep it on? any wording you want?</div>
+      <div><b>The floor rule</b> — name + phone from everyone, email optional</div>
+      <div><b>18+ policy</b> — confirmed, app blocks under-18 signups</div>
+    </div>
+    <div class="beat play rv" aria-hidden="true">
+      <span class="q">Quick</span><span class="q">Quick</span><span>Slow</span><span>Slow</span>
+    </div>
+    <p class="meta rv" style="font-family:'Space Mono',monospace;font-size:.7rem;letter-spacing:.24em;text-transform:uppercase;color:var(--sand);margin-top:2rem">
+      Let's build the Arthur Murray of social dancing. — <b style="color:var(--cream)">Luke K</b></p>
+  </div>
+</section>
+
+<!-- 16 · ROADMAP -->
+<section class="slide" data-title="Roadmap">
+  <div class="wrap">
+    <div class="eyebrow rv">Count 16 <span class="ph">— the roadmap · what lands in your hands, phase by phase</span></div>
+    <h2 class="rv">The whole build, <span class="o">on one floor.</span></h2>
+    <div class="floorline rv">
+
+      <div class="step now">
+        <span class="when">Phase 0 · Underway now</span>
+        <h3>The Foundation</h3>
+        <p>The part you never see: the rulebook, the database, the safety rails, and the
+        test harness — built first so nothing later can wobble.</p>
+      </div>
+
+      <div class="step">
+        <span class="when">Phase 1 · The Door — live at a real Sunday Academy</span>
+        <h3>Check-in &amp; payments, end to end</h3>
+        <ul class="two">
+          <li><b>Accounts for everyone:</b> name + phone (email optional), first-visit date on file</li>
+          <li><b>One-time waiver</b> — 18+ &amp; photo/video permission, with your kill switch</li>
+          <li><b>Dancer level</b> on every profile, set by you</li>
+          <li><b>Member check-in:</b> one tap, green confirmation screen</li>
+          <li><b>First-timer flow:</b> 60 seconds, the $25→$15 deal applied automatically</li>
+          <li><b>Carly's kiosk:</b> search anyone, create walk-ins, flip-to-pay, live roster</li>
+          <li><b>The full menu live:</b> $80 membership · $25 Sunday · $10 social · $10 Friday · 4/8/12 packs</li>
+          <li><b>Every way to pay:</b> Stripe in-app (Apple &amp; Google Pay), your Square reader, cash, Venmo QR</li>
+          <li><b>A receipt on every dollar</b> + nightly totals that reconcile themselves</li>
+          <li><b>Grace buttons:</b> Admit or Decline when a member's card fails — your judgment, one tap</li>
+          <li><b>Comps done right:</b> your standing free list + one-night passes, reasons logged</li>
+          <li><b>Your screen:</b> tonight's roster live, first-timers highlighted, member directory, counts</li>
+          <li><b>Bad-night plan:</b> a rehearsed paper fallback if the venue Wi-Fi dies</li>
+          <li><b>Every data point captured</b> from the very first night</li>
+        </ul>
+        <p class="get">In your hands: a Sunday that runs itself on rails — with you holding the controls.</p>
+      </div>
+
+      <div class="step">
+        <span class="when">Fast-follow · after two smooth Sundays</span>
+        <h3>The autonomous door</h3>
+        <ul>
+          <li><b>Self check-in:</b> dancers tap their own phone — "boom, I'm here" — no booth stop needed</li>
+          <li><b>Cheat-proof:</b> rotating nightly code + check-in only opens near event time</li>
+        </ul>
+        <p class="get">In your hands: a door that works even when Carly's dancing.</p>
+      </div>
+
+      <div class="step">
+        <span class="when">Phase 2 · The community layer</span>
+        <h3>Replace Facebook, keep the family</h3>
+        <ul class="two">
+          <li><b>Events calendar</b> — AMTD plus the whole local scene, filtered to each dancer</li>
+          <li><b>Polls with favorites</b> — "Luke voted he's going here — you in?"</li>
+          <li><b>Levels visible</b> + level-up requests + your gentle bump suggestions</li>
+          <li><b>Recap video archive</b> — every week's recap, one place</li>
+          <li><b>Photo &amp; video library</b> — photographer uploads, dancers download; Drive retired</li>
+          <li><b>Automatic reminders</b> — "Academy tonight, 5 PM," with proper opt-in</li>
+          <li><b>App Store &amp; Google Play</b> versions ship</li>
+        </ul>
+        <p class="get">In your hands: the community's home base — on their home screens.</p>
+      </div>
+
+      <div class="step">
+        <span class="when">Phase 3 · The sales engine</span>
+        <h3>Salesperson first, systemized</h3>
+        <ul class="two">
+          <li><b>The analytics dashboard:</b> attendance trends, retention, first-timer conversion, revenue by night</li>
+          <li><b>Every dancer remembered:</b> goals, notes, and history on every profile</li>
+          <li><b>Follow-up nudges</b> so no lead ever goes cold</li>
+          <li><b>Private lessons booked in-app</b> — instructors fill their weeks, the platform takes its fair cut</li>
+          <li><b>Merch &amp; discount codes</b> you create and kill yourself — no developer needed</li>
+          <li><b>GoHighLevel export</b> while it's handy — never a dependency</li>
+        </ul>
+        <p class="get">In your hands: the machine that turns care into bookings.</p>
+      </div>
+
+      <div class="step">
+        <span class="when">Phase 4 · The platform</span>
+        <h3>Sell the machine</h3>
+        <ul class="two">
+          <li><b>White-label wizard:</b> any instructor in America signs up in minutes — ~$20/mo</li>
+          <li><b>Walled-off data</b> per studio, guaranteed</li>
+          <li><b>Free tier</b> funded by curated dance-world ads only — boots and Fuegos, never casinos</li>
+          <li><b>Instructor training program</b> — your pathway + David Miller's videos, as a paid track</li>
+          <li><b>Premium video coaching</b> — dancers upload their dancing, you mark it up</li>
+        </ul>
+        <p class="get">In your hands: Ask Me To Dance, the national platform.</p>
+      </div>
+
+      <div class="step">
+        <span class="when">Phase 5 · The far horizon</span>
+        <h3>The wild ideas, on scaffolding that's ready</h3>
+        <ul>
+          <li><b>The honest AI concierge</b> — 2 AM answers, morning handoffs to a human</li>
+          <li><b>Posture &amp; timing analysis</b> from uploaded dance videos</li>
+          <li><b>Song ID &amp; practice playlists</b> — hear the cha-cha inside the track</li>
+          <li><b>24/7 badge-in studio access</b> when the space exists</li>
+        </ul>
+        <p class="get">None of it allowed to slow down Sunday. All of it possible on what we're laying now.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+(function(){
+  var slides=[].slice.call(document.querySelectorAll('.slide'));
+  var dots=document.getElementById('dots');
+  var counter=document.getElementById('counter');
+  var progress=document.getElementById('progress');
+
+  slides.forEach(function(s,i){
+    var a=document.createElement('a');
+    a.href='#'; a.setAttribute('aria-label',(s.dataset.title||'Slide '+(i+1)));
+    a.addEventListener('click',function(e){e.preventDefault();s.scrollIntoView({behavior:'smooth'});});
+    dots.appendChild(a);
+  });
+  var dotEls=[].slice.call(dots.children);
+
+  function pad(n){return (n<10?'0':'')+n}
+  var current=0;
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){
+        var i=slides.indexOf(en.target);
+        current=i;
+        dotEls.forEach(function(d,j){d.classList.toggle('on',j===i)});
+        counter.innerHTML='<b>'+pad(i+1)+'</b> / '+pad(slides.length);
+      }
+    });
+  },{threshold:.55});
+  slides.forEach(function(s){io.observe(s)});
+
+  var rv=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ if(en.isIntersecting){en.target.classList.add('in'); rv.unobserve(en.target);} });
+  },{threshold:.2});
+  [].slice.call(document.querySelectorAll('.rv')).forEach(function(el,i){
+    el.style.transitionDelay=(i%6)*0.06+'s'; rv.observe(el);
+  });
+
+  window.addEventListener('scroll',function(){
+    var h=document.documentElement;
+    var p=h.scrollTop/(h.scrollHeight-h.clientHeight);
+    progress.style.width=(p*100)+'%';
+  },{passive:true});
+
+  window.addEventListener('keydown',function(e){
+    if(e.key==='ArrowDown'||e.key==='PageDown'){e.preventDefault();slides[Math.min(current+1,slides.length-1)].scrollIntoView({behavior:'smooth'});}
+    if(e.key==='ArrowUp'||e.key==='PageUp'){e.preventDefault();slides[Math.max(current-1,0)].scrollIntoView({behavior:'smooth'});}
+  });
+})();
+</script>
+</body>
+</html>
