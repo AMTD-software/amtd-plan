@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<!--
+═══════════════════════════════════════════════════════════════════════
+AMTD BUILD TRACKER v2 — INSTRUCTIONS FOR ANY CLAUDE SESSION OR HUMAN
+═══════════════════════════════════════════════════════════════════════
+WHAT THIS IS: the working schedule and status app for the AMTD platform
+build, used by Luke Kerner (developer) and Luke Martz (studio owner,
+non-technical). The whole page renders from the JSON in
+<script id="tracker-data">. Page code never changes for a content edit.
+
+TWO WAYS THE DATA CHANGES:
+A) IN THE BROWSER: anyone can tick tasks and change a week's status. Those
+   edits are held in the browser only (localStorage) and shown as
+   "unsaved changes" until someone clicks Export. Export copies the full,
+   merged JSON to the clipboard and downloads it. To make browser edits
+   permanent, the exported JSON replaces the block below and is committed.
+B) BY EDITING THIS FILE: a Claude session (chat or Claude Code) or a human
+   edits the JSON block directly, then commits.
+
+FIELD RULES:
+- meta.updated = today (YYYY-MM-DD) on every committed edit.
+- meta.changelog: APPEND "YYYY-MM-DD — what changed". Never delete lines.
+- week.status: "done" | "active" | "planned" | "slipped". Exactly one
+  "active" week. Slipping a week: mark it "slipped", say where it moved in
+  week.notes, and adjust the ISO dates of the weeks it pushed. Dates are
+  explicit; nothing recalculates them.
+- task.owner: "K" (Luke Kerner builds) | "M" (Luke Martz decides/does) |
+  "C" (Carly at the booth). Open "M" tasks appear on the owner's to-do
+  list automatically.
+- task.done: boolean. All progress computes from these — never hand-edit
+  a percentage. task.id must stay unique and stable (browser overlays
+  key on it).
+- milestones[].date: ISO. The countdown targets the milestone with
+  id "pilot". Keep milestone dates in sync with the weeks that carry them.
+- build: machine-readable engineering roadmap for Claude sessions. It is not
+  rendered. Its _readme lists the rules; update it at the end of every session.
+HOME: public repo AMTD-software/amtd-plan as roadmap.html (GitHub Pages).
+v1 (the dance-hall calendar) stays alongside as roadmap-v1.html.
+STYLE IS FROZEN. Content only.
+═══════════════════════════════════════════════════════════════════════
+-->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMTD Build Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --canvas:#F3F5F8; --surface:#FFFFFF; --ink:#0E1626; --muted:#5C6677;
+    --hair:#E1E6EE; --hair-2:#CDD5E0;
+    --blue:#1D5BE3; --blue-soft:#E8EFFD;
+    --green:#159A5B; --green-soft:#E4F5EC;
+    --amber:#D9880F; --amber-soft:#FBF0DC;
+    --brand:#BF5700;
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{background:var(--canvas);color:var(--ink);font-family:"Manrope",sans-serif;
+    font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+  button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{
+    outline:2px solid var(--blue);outline-offset:2px}
+  .mono{font-family:var(--mono)}
+
+  /* app bar */
+  .bar{position:sticky;top:0;z-index:20;background:var(--surface);
+    border-bottom:1px solid var(--hair)}
+  .bar-in{width:min(1180px,100%);margin:0 auto;padding:0 clamp(1rem,3vw,2rem);
+    display:flex;align-items:center;gap:1.4rem;min-height:58px}
+  .mark{display:flex;align-items:center;gap:.55rem;font-weight:800;letter-spacing:-.01em;
+    white-space:nowrap}
+  .mark i{width:10px;height:10px;border-radius:50%;background:var(--brand);display:inline-block}
+  .mark small{font-weight:500;color:var(--muted)}
+  .tabs{display:flex;gap:.2rem;margin-left:.4rem}
+  .tabs button{padding:.5rem .8rem;border-radius:6px;color:var(--muted);font-weight:600}
+  .tabs button[aria-selected="true"]{background:var(--blue-soft);color:var(--blue)}
+  .bar-right{margin-left:auto;display:flex;align-items:center;gap:.6rem}
+  .pill{font-size:.78rem;font-weight:600;padding:.32rem .65rem;border-radius:999px;
+    border:1px solid var(--hair-2);color:var(--muted);white-space:nowrap}
+  .pill.dirty{border-color:var(--amber);color:var(--amber);background:var(--amber-soft)}
+  .btn{padding:.45rem .85rem;border-radius:6px;font-weight:600;font-size:.86rem;
+    border:1px solid var(--hair-2);background:var(--surface)}
+  .btn.primary{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .btn:disabled{opacity:.45;cursor:default}
+
+  main{width:min(1180px,100%);margin:0 auto;padding:1.6rem clamp(1rem,3vw,2rem) 4rem}
+  .view{display:none} .view.on{display:block}
+
+  /* generic surfaces */
+  .panel{background:var(--surface);border:1px solid var(--hair);border-radius:8px}
+  .panel-h{display:flex;align-items:baseline;justify-content:space-between;
+    padding:.9rem 1.1rem;border-bottom:1px solid var(--hair)}
+  .panel-h h3{font-size:.92rem;font-weight:800;letter-spacing:-.005em}
+  .panel-h span{font-size:.78rem;color:var(--muted)}
+  .panel-b{padding:1rem 1.1rem}
+  .empty{color:var(--muted);font-size:.9rem;padding:.4rem 0}
+
+  /* status pills */
+  .st{display:inline-block;font-size:.72rem;font-weight:700;padding:.18rem .5rem;
+    border-radius:4px;white-space:nowrap}
+  .st.done{background:var(--green-soft);color:var(--green)}
+  .st.active{background:var(--blue-soft);color:var(--blue)}
+  .st.planned{background:var(--canvas);color:var(--muted);border:1px solid var(--hair)}
+  .st.slipped{background:var(--amber-soft);color:var(--amber)}
+  .own{display:inline-block;font-family:var(--mono);font-size:.66rem;font-weight:600;
+    padding:.08rem .32rem;border-radius:3px;border:1px solid var(--hair-2);color:var(--muted);
+    margin-left:.45rem;vertical-align:1px}
+  .own.M{border-color:var(--brand);color:var(--brand)}
+
+  /* overview headline */
+  .headline{padding:1.6rem 1.4rem 1.4rem}
+  .headline h1{font-size:clamp(1.6rem,3.6vw,2.5rem);font-weight:800;letter-spacing:-.025em;
+    line-height:1.12;max-width:26ch}
+  .headline h1 b{color:var(--blue)}
+  .health{display:inline-flex;align-items:center;gap:.5rem;margin-top:.9rem;font-weight:700;
+    font-size:.9rem}
+  .health i{width:10px;height:10px;border-radius:50%;display:inline-block}
+  .health.ok i{background:var(--green)} .health.ok{color:var(--green)}
+  .health.risk i{background:var(--amber)} .health.risk{color:var(--amber)}
+  .health.behind i{background:#C43D2F} .health.behind{color:#C43D2F}
+  .cue{color:var(--muted);font-size:.9rem;margin-top:.35rem}
+  .prog{margin-top:1.1rem;max-width:520px}
+  .prog .track{height:8px;background:var(--canvas);border:1px solid var(--hair);
+    border-radius:4px;overflow:hidden}
+  .prog .fill{height:100%;background:var(--blue);width:0;transition:width .6s ease}
+  .prog .lab{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);
+    margin-top:.35rem}
+
+  .grid{display:grid;grid-template-columns:1.35fr 1fr;gap:1rem;margin-top:1rem}
+  .stack{display:grid;gap:1rem}
+
+  /* task rows */
+  .task{display:flex;align-items:flex-start;gap:.7rem;padding:.55rem 0;
+    border-bottom:1px solid var(--hair)}
+  .task:last-child{border-bottom:0}
+  .task input{appearance:none;width:18px;height:18px;border:1.5px solid var(--hair-2);
+    border-radius:5px;flex:none;margin-top:.12rem;position:relative;cursor:pointer}
+  .task input:checked{background:var(--green);border-color:var(--green)}
+  .task input:checked::after{content:"";position:absolute;left:5px;top:2px;width:5px;height:9px;
+    border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .task label{font-size:.92rem;cursor:pointer}
+  .task.done label{color:var(--muted);text-decoration:line-through;
+    text-decoration-color:var(--hair-2)}
+
+  /* milestones */
+  .ms{display:flex;justify-content:space-between;gap:1rem;padding:.6rem 0;
+    border-bottom:1px solid var(--hair);font-size:.92rem}
+  .ms:last-child{border-bottom:0}
+  .ms .d{font-family:var(--mono);font-size:.78rem;color:var(--muted);white-space:nowrap}
+  .ms.done .l{color:var(--muted)} .ms.next .l{font-weight:800}
+  .ms .in{font-size:.78rem;color:var(--blue);font-weight:700}
+
+  /* timeline ledger */
+  .ph{margin-top:1.4rem}
+  .ph-h{position:sticky;top:58px;z-index:5;background:var(--canvas);padding:.7rem 0 .5rem;
+    border-bottom:1px solid var(--hair-2);display:flex;align-items:baseline;gap:.8rem;
+    flex-wrap:wrap}
+  .ph-h h2{font-size:1.05rem;font-weight:800;letter-spacing:-.01em}
+  .ph-h span{font-size:.82rem;color:var(--muted)}
+  .wk{display:grid;grid-template-columns:150px 1fr;gap:1rem;padding:.85rem 0;
+    border-bottom:1px solid var(--hair);cursor:pointer;align-items:start}
+  .wk:hover{background:rgba(29,91,227,.03)}
+  .wk-when{font-family:var(--mono);font-size:.76rem;color:var(--muted);line-height:1.45}
+  .wk-when b{display:block;color:var(--ink);font-weight:600}
+  .wk-main h4{font-size:1rem;font-weight:800;letter-spacing:-.01em;display:flex;
+    align-items:center;gap:.55rem;flex-wrap:wrap}
+  .wk-main p{color:var(--muted);font-size:.88rem;margin-top:.15rem}
+  .wk-detail{display:none;margin-top:.6rem;padding:.2rem 0 0}
+  .wk.open .wk-detail{display:block}
+  .wk-ctl{display:flex;align-items:center;gap:.6rem;margin-top:.7rem;font-size:.8rem;
+    color:var(--muted)}
+  .wk-ctl select{font:inherit;font-size:.8rem;padding:.25rem .4rem;border:1px solid var(--hair-2);
+    border-radius:5px;background:var(--surface)}
+  .wk .notes{margin-top:.6rem;font-size:.84rem;color:var(--muted);border-left:2px solid var(--amber);
+    padding-left:.7rem}
+  .wk .out{margin-top:.55rem;font-size:.86rem;color:var(--ink)}
+  .wk .out em{color:var(--muted);font-style:normal}
+  .mini{height:4px;background:var(--canvas);border-radius:2px;overflow:hidden;max-width:220px;
+    margin-top:.5rem}
+  .mini i{display:block;height:100%;background:var(--green)}
+  .today{display:grid;grid-template-columns:150px 1fr;gap:1rem;align-items:center;
+    padding:.35rem 0;color:var(--blue);font-family:var(--mono);font-size:.74rem;font-weight:600}
+  .today i{display:block;height:2px;background:var(--blue)}
+
+  /* plan tab */
+  .brief{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+  .brief .panel-b p{font-size:.93rem;margin-bottom:.6rem}
+  .brief .panel-b p:last-child{margin-bottom:0}
+  .brief ul{padding-left:1.1rem;font-size:.92rem}
+  .brief li{margin:.28rem 0}
+  .brief .role{display:flex;gap:.7rem;padding:.4rem 0;border-bottom:1px solid var(--hair);
+    font-size:.92rem}
+  .brief .role:last-child{border-bottom:0}
+  .brief .role b{min-width:120px}
+  .phases{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem}
+  .phases .panel-b h4{font-size:.95rem;font-weight:800;margin-bottom:.35rem}
+  .phases .panel-b .when{font-family:var(--mono);font-size:.74rem;color:var(--muted);
+    margin-bottom:.5rem}
+  .phases .panel-b p{font-size:.88rem;color:var(--muted)}
+  .howto{margin-top:1rem}
+  .howto ol{padding-left:1.2rem;font-size:.9rem;color:var(--muted)}
+  .howto li{margin:.3rem 0}
+  .howto b{color:var(--ink)}
+  .log{font-family:var(--mono);font-size:.74rem;color:var(--muted)}
+  .log div{padding:.3rem 0;border-bottom:1px solid var(--hair)}
+  .log div:last-child{border-bottom:0}
+
+  @media (max-width:860px){
+    .grid,.brief{grid-template-columns:1fr}
+    .phases{grid-template-columns:1fr}
+    .wk,.today{grid-template-columns:1fr;gap:.3rem}
+    .tabs button{padding:.45rem .55rem;font-size:.86rem}
+    .mark small{display:none}
+  }
+  @media (prefers-reduced-motion: reduce){.prog .fill{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <div class="bar-in">
+    <div class="mark"><i></i>AMTD <small>Build Tracker</small></div>
+    <nav class="tabs" role="tablist" id="tabs">
+      <button role="tab" data-view="overview" aria-selected="true">Overview</button>
+      <button role="tab" data-view="timeline" aria-selected="false">Timeline</button>
+      <button role="tab" data-view="week" aria-selected="false">This week</button>
+      <button role="tab" data-view="plan" aria-selected="false">The plan</button>
+    </nav>
+    <div class="bar-right">
+      <span class="pill" id="dirty">Saved</span>
+      <button class="btn" id="reset" disabled>Discard</button>
+      <button class="btn primary" id="export">Export</button>
+    </div>
+  </div>
+</div>
+
+<main>
+  <section class="view on" id="v-overview">
+    <div class="panel headline" id="headline"></div>
+    <div class="grid">
+      <div class="stack">
+        <div class="panel"><div class="panel-h"><h3>This week</h3><span id="tw-sub"></span></div>
+          <div class="panel-b" id="tw-tasks"></div></div>
+        <div class="panel"><div class="panel-h"><h3>Recent changes</h3><span>the written record</span></div>
+          <div class="panel-b log" id="ov-log"></div></div>
+      </div>
+      <div class="stack">
+        <div class="panel"><div class="panel-h"><h3>Milestones</h3><span>Sundays that matter</span></div>
+          <div class="panel-b" id="ov-ms"></div></div>
+        <div class="panel"><div class="panel-h"><h3>Needs Luke Martz</h3><span>open decisions and dates</span></div>
+          <div class="panel-b" id="ov-martz"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="v-timeline"><div id="ledger"></div></section>
+
+  <section class="view" id="v-week">
+    <div class="panel"><div class="panel-h"><h3 id="wk-title">This week</h3><span id="wk-sub"></span></div>
+      <div class="panel-b" id="wk-body"></div></div>
+  </section>
+
+  <section class="view" id="v-plan">
+    <div class="brief" id="brief"></div>
+    <div class="phases" id="phase-cards"></div>
+    <div class="panel howto"><div class="panel-h"><h3>How this tracker works</h3><span>for either of us, or any Claude session</span></div>
+      <div class="panel-b">
+        <ol>
+          <li><b>Read it in three seconds.</b> The Overview headline says which week we're in, how far
+            the pilot is, and whether we're on track. Green means on schedule; amber means one week
+            behind; red means more.</li>
+          <li><b>Tick things off here.</b> Check tasks or change a week's status. Edits stay in this
+            browser and show as "unsaved changes" until they're exported.</li>
+          <li><b>Export to make it permanent.</b> Export copies the updated data and downloads it. Luke
+            Kerner (or a Claude session) drops it into the file and commits — git history is the audit
+            trail.</li>
+          <li><b>Or just tell a Claude session.</b> "Mark week 3 done," "slip week 5 by a week" — the
+            editing rules are written inside this file, so any session knows what to change.</li>
+          <li><b>Slips get recorded, not erased.</b> A slipped week is marked and explained. The tracker
+            tells the truth about how the build actually went.</li>
+        </ol>
+      </div></div>
+  </section>
+</main>
+
+<script id="tracker-data" type="application/json">
+{
+  "meta": {
+    "updated": "2026-09-30",
+    "version": "2.0",
+    "changelog": [
+      "2026-09-23 — v1 calendar created (dance-hall style; kept as roadmap-v1.html).",
+      "2026-09-30 — v2 tracker: interactive, plain-language, owner to-dos, health + countdown. Week 1 marked active.",
+      "2026-09-30 — Build-first: nothing waits on sign-offs. Prices and policies are built from the July 25 recordings as settings Luke M can change later. Week 1's sit-down became a read-through of the operating facts list; his three remaining to-dos are dated (weeks 4, 5, 6).",
+      "2026-09-30 — Security-layer task moved from week 1 to week 2 to match the real build order. One-night comps set aside for later. Paying in the app on your own phone made explicit in week 4. Brand kit and kiosk mockup added to week 2, with a try-it task for Luke M and Carly in week 3.",
+      "2026-09-30 — Added a machine-readable build list for Claude sessions (not shown on the page)."
+    ]
+  },
+  "mission": {
+    "problem": "Sunday night runs on a paper sign-in sheet, two QR codes, and memory. People slip in the side door, polls live on Facebook, and nobody knows for sure who came, who's new, or who stopped coming.",
+    "goal": "Build the Ask Me To Dance app: a smooth, gated check-in and payment system on Carly's tablet first, then the community and instructor tools — designed from day one so other dance studios can run the same system as paying customers.",
+    "success": [
+      "Members check in with one tap; walk-ins pay in under a minute; nobody enters without paying or being on the free list",
+      "Every visit and every dollar is recorded from the first live Sunday, so decisions get made from data",
+      "It does not break at 4:55 PM on a Sunday — money paths are tested first and there is a rehearsed paper fallback",
+      "The same system can be handed to another studio through a signup wizard, with no developer involved"
+    ],
+    "roles": [
+      [
+        "Luke Kerner",
+        "Builds it with Claude Code; reviews and merges every change; owns the schedule"
+      ],
+      [
+        "Luke Martz",
+        "Owns pricing, policies, waiver wording, the free-entry list, and the live Sundays"
+      ],
+      [
+        "Carly",
+        "Runs the booth; the kiosk is built around her flow; rehearses the fallback plan"
+      ],
+      [
+        "Codex (AI reviewer)",
+        "Independently reviews everything touching money, access, and data privacy"
+      ]
+    ]
+  },
+  "milestones": [
+    {
+      "id": "zero",
+      "date": "2026-09-02",
+      "label": "Repo, rules, and CI live (commit zero)",
+      "status": "done"
+    },
+    {
+      "id": "signoff",
+      "date": "2026-10-04",
+      "label": "Operating facts list sent to Luke M — his chance to call out anything that's off",
+      "status": "planned"
+    },
+    {
+      "id": "shadow",
+      "date": "2026-11-08",
+      "label": "Shadow Sunday — system runs beside the paper sheet",
+      "status": "planned"
+    },
+    {
+      "id": "pilot",
+      "date": "2026-11-15",
+      "label": "Pilot Sunday — the tablet takes the door",
+      "status": "planned"
+    },
+    {
+      "id": "selfci",
+      "date": "2026-12-06",
+      "label": "Self check-in on your own phone",
+      "status": "planned"
+    }
+  ],
+  "phases": [
+    {
+      "id": "p0",
+      "name": "Phase 0 — Foundation",
+      "window": "Jul – Sep 2026",
+      "status": "done",
+      "outcome": "All the decisions made and written down, the ground poured, the repo running.",
+      "weeks": [
+        {
+          "id": "w0",
+          "n": 0,
+          "start": "2026-07-25",
+          "end": "2026-09-27",
+          "status": "done",
+          "title": "Planning, rules, and commit zero",
+          "outcome": "A foundation that cannot wobble.",
+          "tasks": [
+            {
+              "id": "w0a",
+              "text": "Full product plan, 36 recorded decisions, and a reviewed database blueprint",
+              "owner": "K",
+              "done": true
+            },
+            {
+              "id": "w0b",
+              "text": "Business-owned accounts: hardened email, GitHub organization, shared vault",
+              "owner": "K",
+              "done": true
+            },
+            {
+              "id": "w0c",
+              "text": "Repository live with automated checks and a local database runtime",
+              "owner": "K",
+              "done": true
+            },
+            {
+              "id": "w0d",
+              "text": "Plan deck published for Luke Martz",
+              "owner": "K",
+              "done": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "p1",
+      "name": "Phase 1 — The Door",
+      "window": "Sep 28 – Nov 15",
+      "status": "active",
+      "outcome": "Check-in and payments, end to end, live on Carly's tablet at a real Sunday Academy.",
+      "weeks": [
+        {
+          "id": "w1",
+          "n": 1,
+          "start": "2026-09-28",
+          "end": "2026-10-04",
+          "status": "active",
+          "title": "Database core",
+          "outcome": "A database that knows who everyone is and what studio they belong to.",
+          "tasks": [
+            {
+              "id": "w1a",
+              "text": "Build the core of the database: people, the studio, memberships, events, classes, products",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w1c",
+              "text": "Read the operating facts list — the prices, policies, and first-draft waiver we're building from, taken from the July 25 recordings — and call out anything that's wrong. The build does not wait on it",
+              "owner": "M",
+              "done": false
+            },
+            {
+              "id": "w1d",
+              "owner": "K",
+              "done": false,
+              "text": "Write down the operating facts: every price and policy we're building from, plus a first-draft waiver"
+            }
+          ]
+        },
+        {
+          "id": "w2",
+          "n": 2,
+          "start": "2026-10-05",
+          "end": "2026-10-11",
+          "status": "planned",
+          "title": "Database complete",
+          "outcome": "Every table live; proven that one studio can never see another's data.",
+          "tasks": [
+            {
+              "id": "w2a",
+              "text": "Add the money side: orders, payments, class-pack credits, check-ins, receipts",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w1b",
+              "text": "Set up the security layer that keeps each studio's data private",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w2b",
+              "text": "Automated tests that try to read another studio's data and must fail, every time code changes",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w2c",
+              "text": "Turn on GitHub's paid tier so the main code line is protected before money code lands",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w2d",
+              "owner": "K",
+              "done": false,
+              "text": "Brand kit and a clickable kiosk mockup at tablet size: colors, buttons, and the reusable cards the whole app will share"
+            }
+          ]
+        },
+        {
+          "id": "w3",
+          "n": 3,
+          "start": "2026-10-12",
+          "end": "2026-10-18",
+          "status": "planned",
+          "title": "The check-in brain",
+          "outcome": "The door decides correctly, even when two people tap at once.",
+          "tasks": [
+            {
+              "id": "w3a",
+              "text": "Check-in logic: covered by membership, a class pack, or needs to pay tonight?",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w3b",
+              "text": "Free-entry list for helpers and instructors, with the reason recorded",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w3c",
+              "text": "Card-failed flow: Admit or Decline buttons at the booth, fully logged",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w3d",
+              "text": "Stress test: a class pack can never be overspent, even under a rush",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w3e",
+              "owner": "M",
+              "done": false,
+              "text": "Try the kiosk mockup with Carly and tell us what's confusing or missing"
+            }
+          ],
+          "notes": "Build order: the payment plumbing on week 4's list is built first, because check-in depends on it. Weeks 3 and 4 finish together."
+        },
+        {
+          "id": "w4",
+          "n": 4,
+          "start": "2026-10-19",
+          "end": "2026-10-25",
+          "status": "planned",
+          "title": "Taking money",
+          "outcome": "Every way to pay works, and every night adds up.",
+          "tasks": [
+            {
+              "id": "w4a",
+              "text": "Pay in the app on your own phone — drop-ins, class packs, and memberships — with Apple Pay and Google Pay (Stripe checkout behind it)",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w4b",
+              "text": "Payment confirmations made bulletproof: duplicates, refunds, and out-of-order messages",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w4c",
+              "text": "Cash, Venmo-QR, and Square-reader payments recorded at the booth, with receipts",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w4d",
+              "text": "Nightly 'does it all add up' report",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w4e",
+              "text": "Create the Stripe products in test mode, using the prices on the operating facts list",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w4f",
+              "owner": "M",
+              "done": false,
+              "text": "Activate the Stripe account: legal business name, tax ID, and bank account (needed before live payments; hard deadline is week 7)"
+            }
+          ]
+        },
+        {
+          "id": "w5",
+          "n": 5,
+          "start": "2026-10-26",
+          "end": "2026-11-01",
+          "status": "planned",
+          "title": "Carly's kiosk",
+          "outcome": "The booth, upgraded — on the actual Samsung tablet.",
+          "tasks": [
+            {
+              "id": "w5a",
+              "text": "Find anyone in two letters, add a walk-in, one-time waiver screen, flip the tablet to pay",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w5b",
+              "text": "Live roster: who's in, who's paid, first-timers highlighted, Admit/Decline and comp buttons",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w5c",
+              "text": "Run a full pretend Sunday on the real tablet with Carly",
+              "owner": "C",
+              "done": false
+            },
+            {
+              "id": "w5d",
+              "owner": "M",
+              "done": false,
+              "text": "Check the venue Wi-Fi at the booth (a phone hotspot is the backup either way)"
+            }
+          ]
+        },
+        {
+          "id": "w6",
+          "n": 6,
+          "start": "2026-11-02",
+          "end": "2026-11-08",
+          "status": "planned",
+          "title": "Member app and shadow run",
+          "outcome": "A real Sunday watches the system work — with the paper sheet still in charge.",
+          "tasks": [
+            {
+              "id": "w6a",
+              "text": "Member app: join, buy a membership or pack, check in, green confirmation screen",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w6b",
+              "text": "Admin view: member directory and tonight's counts",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w6c",
+              "text": "Put it online: hosting, a staging copy, database backups tested",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w6d",
+              "text": "Finish and rehearse the bad-night plan (paper fallback)",
+              "owner": "C",
+              "done": false
+            },
+            {
+              "id": "w6e",
+              "text": "Shadow Sunday, Nov 8: the app runs beside the paper sheet and enforces nothing",
+              "owner": "M",
+              "done": false
+            },
+            {
+              "id": "w6f",
+              "owner": "M",
+              "done": false,
+              "text": "Send the standing free-entry list and Carly's phone number for her staff login"
+            }
+          ]
+        },
+        {
+          "id": "w7",
+          "n": 7,
+          "start": "2026-11-09",
+          "end": "2026-11-15",
+          "status": "planned",
+          "title": "Launch week",
+          "outcome": "Ask Me To Dance runs on the app.",
+          "tasks": [
+            {
+              "id": "w7a",
+              "text": "Fix everything the shadow run surfaced",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w7b",
+              "text": "Switch Stripe to live payments, with a security re-check",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w7c",
+              "text": "Load real events, the free-entry list, and the waiver text with Luke M's edits",
+              "owner": "M",
+              "done": false
+            },
+            {
+              "id": "w7d",
+              "text": "Pilot Sunday, Nov 15: kiosk first, Carly driving, paper in the drawer",
+              "owner": "M",
+              "done": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "p15",
+      "name": "Stabilize and fast-follow",
+      "window": "Nov 16 – Dec 6",
+      "status": "planned",
+      "outcome": "Two steady Sundays, then the door that works without the booth.",
+      "weeks": [
+        {
+          "id": "w8",
+          "n": 8,
+          "start": "2026-11-16",
+          "end": "2026-11-22",
+          "status": "planned",
+          "title": "Stabilize I",
+          "outcome": "A system earning trust.",
+          "notes": "Built-in buffer: if launch slips a week, the pilot lands here instead.",
+          "tasks": [
+            {
+              "id": "w8a",
+              "text": "Bug fixes only; the nightly report watched every day",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w8b",
+              "text": "Stable Sunday #1, Nov 22",
+              "owner": "M",
+              "done": false
+            }
+          ]
+        },
+        {
+          "id": "w9",
+          "n": 9,
+          "start": "2026-11-23",
+          "end": "2026-11-29",
+          "status": "planned",
+          "title": "Stabilize II (Thanksgiving)",
+          "outcome": "Two smooth Sundays on the record.",
+          "tasks": [
+            {
+              "id": "w9a",
+              "text": "Light week by design; fixes only",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w9b",
+              "text": "Stable Sunday #2, Nov 29 — unlocks self check-in",
+              "owner": "M",
+              "done": false
+            }
+          ]
+        },
+        {
+          "id": "w10",
+          "n": 10,
+          "start": "2026-11-30",
+          "end": "2026-12-06",
+          "status": "planned",
+          "title": "Self check-in",
+          "outcome": "A door that works even when Carly's dancing.",
+          "tasks": [
+            {
+              "id": "w10a",
+              "text": "One tap on your own phone — 'boom, I'm here' — with a green confirmation",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w10b",
+              "text": "Cheat-proofing: a rotating nightly code, open only near event time",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w10c",
+              "text": "Live for Sunday, Dec 6",
+              "owner": "M",
+              "done": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "p2",
+      "name": "Phase 2 opens — stores and community",
+      "window": "Dec 7 – Jan 3",
+      "status": "planned",
+      "outcome": "On the app stores, texts on autopilot, and the first community features — at honest holiday speed.",
+      "weeks": [
+        {
+          "id": "w11",
+          "n": 11,
+          "start": "2026-12-07",
+          "end": "2026-12-13",
+          "status": "planned",
+          "title": "App stores and reminders",
+          "outcome": "AMTD on Google Play; reminder texts on autopilot.",
+          "tasks": [
+            {
+              "id": "w11a",
+              "text": "Google Play listing (the quick one)",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w11b",
+              "text": "iPhone app wrap started",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w11c",
+              "text": "Automatic Sunday reminder texts with proper opt-in — retires the pay-per-text service",
+              "owner": "K",
+              "done": false
+            }
+          ]
+        },
+        {
+          "id": "w12",
+          "n": 12,
+          "start": "2026-12-14",
+          "end": "2026-12-20",
+          "status": "planned",
+          "title": "Community, first pieces",
+          "outcome": "The community layer taking shape.",
+          "notes": "Reduced speed expected over the holidays; anything unfinished rolls into January.",
+          "tasks": [
+            {
+              "id": "w12a",
+              "text": "Events calendar, first version",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w12b",
+              "text": "Recap video archive, first version",
+              "owner": "K",
+              "done": false
+            }
+          ]
+        },
+        {
+          "id": "w13",
+          "n": 13,
+          "start": "2026-12-21",
+          "end": "2027-01-03",
+          "status": "planned",
+          "title": "Holiday buffer and review",
+          "outcome": "A stable system and a rested developer.",
+          "tasks": [
+            {
+              "id": "w13a",
+              "text": "Fixes and watching the numbers only",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w13b",
+              "text": "Year-in-review together after seven live Sundays",
+              "owner": "M",
+              "done": false
+            },
+            {
+              "id": "w13c",
+              "text": "Refresh this tracker for 2027",
+              "owner": "K",
+              "done": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "horizon": [
+    {
+      "window": "Jan – Feb 2027",
+      "name": "Phase 2 complete — the community's home",
+      "text": "Polls with favorites, dancer levels you can see and request, a photo and video library that replaces Google Drive, the iPhone app in the App Store."
+    },
+    {
+      "window": "Mar – Apr 2027",
+      "name": "Phase 3 — the sales engine",
+      "text": "A dashboard of who comes, who stays, and what converts; notes and goals on every dancer; follow-up reminders; private lessons booked in the app; merch discount codes Martz controls himself."
+    },
+    {
+      "window": "When a second studio is real",
+      "name": "Phase 4 — sell the machine",
+      "text": "Another studio signs up through a wizard and runs the same system for a monthly fee, with its data walled off. Free tier with tasteful dance-world ads, instructor training program, video coaching."
+    }
+  ],
+  "build": {
+    "_readme": [
+      "Machine-readable engineering roadmap for Claude sessions. Not rendered on the page.",
+      "Items mirror docs/specs/phase-0-schema.md section 10.1, in order. The spec defines each item; this block only tracks status.",
+      "Git is the ground truth. At session start compare this block with merged PRs in the repo; if they disagree, fix this block.",
+      "status: todo | in_progress | pr_open | merged | blocked | deferred.",
+      "Sprint loop (Luke K builds alongside; this is not a fully autonomous build): before each pr_unit, outline what will be built and how it is verified, ask 'is this good?', build only after his OK, then report.",
+      "gate 'human' adds one step to the loop: an independent review of the approach before implementation (money path, access decisions, webhooks).",
+      "One PR per pr_unit (one per migration file, because merged migrations are immutable). Items that share a pr_unit are separate commits on one branch. Stacks at most three PRs deep.",
+      "Every PR that touches a migration gets a cold review by a different model before it is opened for merge (D-015). Luke K may also send PRs to Codex. Only Luke K merges (D-035).",
+      "A tracker task is ticked done when every item listing it in 'tasks' is merged.",
+      "End of every session: update item status and pr, set 'next', append to meta.changelog, commit."
+    ],
+    "repo": "AMTD-software/amtd-platform",
+    "spec": "docs/specs/phase-0-schema.md",
+    "next": "B02",
+    "blockers": [
+      {
+        "id": "X1",
+        "status": "open",
+        "owner": "K",
+        "blocks": [
+          "B02"
+        ],
+        "what": "No container runtime on Luke K's Mac, so the local database cannot start. Install Docker Desktop."
+      },
+      {
+        "id": "X2",
+        "status": "open",
+        "owner": "K",
+        "blocks": [
+          "B25"
+        ],
+        "what": "Build-first policy not yet in the repo docs (D-037 onward, OPERATING-FACTS.md, waiver draft). Propose, approve, land. Does not block B02-B16: schema and tests do not depend on it."
+      },
+      {
+        "id": "X3",
+        "status": "open",
+        "owner": "K",
+        "blocks": [
+          "B07"
+        ],
+        "what": "D-035: branch protection (GitHub paid tier, tracker task w2c) must be on before payment-path migrations land."
+      },
+      {
+        "id": "X4",
+        "status": "open",
+        "owner": "K",
+        "blocks": [
+          "B19"
+        ],
+        "what": "No Stripe dependency is recorded. Decide SDK vs plain fetch + HMAC and record it in DECISIONS.md before the webhook route."
+      }
+    ],
+    "unspecced": [
+      {
+        "tasks": [
+          "w4a"
+        ],
+        "what": "Member pay-in-app screens (the backend is B17-B22; members buy on their own phone, memberships are app-only per D-032)"
+      },
+      {
+        "tasks": [
+          "w5a",
+          "w5b"
+        ],
+        "what": "Kiosk screens and flow (beyond the smoke test in B26)"
+      },
+      {
+        "tasks": [
+          "w6a"
+        ],
+        "what": "Member app"
+      },
+      {
+        "tasks": [
+          "w6b"
+        ],
+        "what": "Admin view"
+      },
+      {
+        "tasks": [
+          "w6c"
+        ],
+        "what": "Hosting, staging, backups (OPEN-QUESTIONS Q11, Q12)"
+      },
+      {
+        "tasks": [
+          "w10a",
+          "w10b"
+        ],
+        "what": "Self check-in (D-022)"
+      }
+    ],
+    "items": [
+      {
+        "id": "B01",
+        "spec_item": 1,
+        "title": "Initialize repo, pin toolchain, CI",
+        "migration": null,
+        "pr_unit": null,
+        "tasks": [
+          "w0c"
+        ],
+        "gate": "auto",
+        "status": "merged",
+        "pr": [
+          1,
+          2
+        ]
+      },
+      {
+        "id": "B02",
+        "spec_item": 2,
+        "title": "0001 extensions, private schema, enums; enum/extension snapshot",
+        "migration": "0001_extensions_schemas_enums.sql",
+        "pr_unit": "feature/0001-extensions-enums",
+        "tasks": [
+          "w1a"
+        ],
+        "gate": "auto",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B03",
+        "spec_item": 3,
+        "title": "0002 organizations, persons, contacts, memberships, device sessions",
+        "migration": "0002_identity_tenancy_devices.sql",
+        "pr_unit": "feature/0002-identity-tenancy",
+        "tasks": [
+          "w1a"
+        ],
+        "gate": "auto",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B04",
+        "spec_item": 4,
+        "title": "0003 waiver versions and signatures",
+        "migration": "0003_waivers.sql",
+        "pr_unit": "feature/0003-waivers",
+        "tasks": [
+          "w1a"
+        ],
+        "gate": "auto",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B05",
+        "spec_item": 5,
+        "title": "0004 series, instances, offerings, same-series constraints",
+        "migration": "0004_events_catalog.sql",
+        "pr_unit": "feature/0004-events-catalog",
+        "tasks": [
+          "w1a"
+        ],
+        "gate": "auto",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B06",
+        "spec_item": 6,
+        "title": "0004 products, coverage, immutable-version tests",
+        "migration": "0004_events_catalog.sql",
+        "pr_unit": "feature/0004-events-catalog",
+        "tasks": [
+          "w1a"
+        ],
+        "gate": "auto",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B07",
+        "spec_item": 7,
+        "title": "0005 orders and first-time claims (FIRST-05 concurrency)",
+        "migration": "0005_orders_discounts_payments.sql",
+        "pr_unit": "feature/0005-orders-payments",
+        "tasks": [
+          "w2a"
+        ],
+        "gate": "auto",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B08",
+        "spec_item": 8,
+        "title": "0005 payment attempts, provider events, uniqueness",
+        "migration": "0005_orders_discounts_payments.sql",
+        "pr_unit": "feature/0005-orders-payments",
+        "tasks": [
+          "w2a"
+        ],
+        "gate": "auto",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B09",
+        "spec_item": 9,
+        "title": "0006 entitlements, attendance, redemptions (BUNDLE-01/02)",
+        "migration": "0006_entitlements_attendance.sql",
+        "pr_unit": "feature/0006-entitlements-attendance",
+        "tasks": [
+          "w2a"
+        ],
+        "gate": "auto",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B10",
+        "spec_item": 10,
+        "title": "0006 reversals and append-only guards (BUNDLE-06, REFUND-02)",
+        "migration": "0006_entitlements_attendance.sql",
+        "pr_unit": "feature/0006-entitlements-attendance",
+        "tasks": [
+          "w2a"
+        ],
+        "gate": "auto",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B11",
+        "spec_item": 11,
+        "title": "0007 receipts, deliveries, exceptions, audit",
+        "migration": "0007_receipts_exceptions_audit.sql",
+        "pr_unit": "feature/0007-receipts-audit",
+        "tasks": [
+          "w2a"
+        ],
+        "gate": "auto",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B12",
+        "spec_item": 12,
+        "title": "0008 composite tenant FKs and triggers; generated cross-tenant negatives",
+        "migration": "0008_indexes_and_tenant_constraints.sql",
+        "pr_unit": "feature/0008-tenant-constraints",
+        "tasks": [
+          "w2b"
+        ],
+        "gate": "auto",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B13",
+        "spec_item": 13,
+        "title": "0008 door-path indexes; PERF-01/02 baseline plans",
+        "migration": "0008_indexes_and_tenant_constraints.sql",
+        "pr_unit": "feature/0008-tenant-constraints",
+        "tasks": [
+          "w2a"
+        ],
+        "gate": "auto",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B14",
+        "spec_item": 14,
+        "title": "0009 private RLS helpers (definer/search-path review)",
+        "migration": "0009_rls_helpers_policies_grants.sql",
+        "pr_unit": "feature/0009-rls",
+        "tasks": [
+          "w1b"
+        ],
+        "gate": "auto",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B15",
+        "spec_item": 15,
+        "title": "0009 policies and grants in groups; RLS-01..25",
+        "migration": "0009_rls_helpers_policies_grants.sql",
+        "pr_unit": "feature/0009-rls",
+        "tasks": [
+          "w1b",
+          "w2b"
+        ],
+        "gate": "auto",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B16",
+        "spec_item": 16,
+        "title": "0010 actor/device, identity, waiver, pricing, event-config commands",
+        "migration": "0010_actor_device_identity_commands.sql",
+        "pr_unit": "feature/0010-identity-commands",
+        "tasks": [
+          "w3a"
+        ],
+        "gate": "auto",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B17",
+        "spec_item": 17,
+        "title": "0011 create_order, discount claims, begin_stripe_checkout (FIRST-01..09)",
+        "migration": "0011_order_manual_payment_commands.sql",
+        "pr_unit": "feature/0011-order-commands",
+        "tasks": [
+          "w4a"
+        ],
+        "gate": "human",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B18",
+        "spec_item": 18,
+        "title": "0011 record_manual_tender and receipts (KIOSK-05..07)",
+        "migration": "0011_order_manual_payment_commands.sql",
+        "pr_unit": "feature/0011-order-commands",
+        "tasks": [
+          "w4c"
+        ],
+        "gate": "human",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B19",
+        "spec_item": 19,
+        "title": "Webhook route raw-body signature test",
+        "migration": null,
+        "pr_unit": "feature/webhook-route",
+        "tasks": [
+          "w4b"
+        ],
+        "gate": "human",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B20",
+        "spec_item": 20,
+        "title": "0012 provider inbox transitions, confirm_order_paid (WEBHOOK-01/02/07/09)",
+        "migration": "0012_provider_payment_commands.sql",
+        "pr_unit": "feature/0012-provider-commands",
+        "tasks": [
+          "w4b"
+        ],
+        "gate": "human",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B21",
+        "spec_item": 21,
+        "title": "0012 renewal and payment-problem handlers (WEBHOOK rest, MEMBER states)",
+        "migration": "0012_provider_payment_commands.sql",
+        "pr_unit": "feature/0012-provider-commands",
+        "tasks": [
+          "w4b",
+          "w3c"
+        ],
+        "gate": "human",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B22",
+        "spec_item": 22,
+        "title": "0012 reversal/refund logic (REFUND-01..06)",
+        "migration": "0012_provider_payment_commands.sql",
+        "pr_unit": "feature/0012-provider-commands",
+        "tasks": [
+          "w4b"
+        ],
+        "gate": "human",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B23",
+        "spec_item": 23,
+        "title": "0013 event-open, grace, decline commands (one-night comp command deferred — proposed D-041)",
+        "migration": "0013_access_commands.sql",
+        "pr_unit": "feature/0013-access-commands",
+        "tasks": [
+          "w3b",
+          "w3c"
+        ],
+        "gate": "human",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B24",
+        "spec_item": 24,
+        "title": "0013 check_in waterfall (WATER-01..10) and full concurrency suite",
+        "migration": "0013_access_commands.sql",
+        "pr_unit": "feature/0013-access-commands",
+        "tasks": [
+          "w3a",
+          "w3d"
+        ],
+        "gate": "human",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B25",
+        "spec_item": 25,
+        "title": "0014 seed support, idempotent seed, one-time admin bootstrap",
+        "migration": "0014_seed_support.sql",
+        "pr_unit": "feature/0014-seed",
+        "tasks": [
+          "w4e"
+        ],
+        "gate": "auto",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B26",
+        "spec_item": 26,
+        "title": "Kiosk vertical smoke and nightly reconciliation read model",
+        "migration": null,
+        "pr_unit": "feature/kiosk-smoke",
+        "tasks": [
+          "w4d",
+          "w5a",
+          "w5b"
+        ],
+        "gate": "auto",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B27",
+        "spec_item": 27,
+        "title": "Object-manifest security audit, all suites, cold review against I1-I10",
+        "migration": null,
+        "pr_unit": "feature/security-audit",
+        "tasks": [],
+        "gate": "auto",
+        "status": "todo",
+        "pr": []
+      },
+      {
+        "id": "B28",
+        "spec_item": 28,
+        "title": "Replace duplicated spec SQL with links to canonical migrations",
+        "migration": null,
+        "pr_unit": "feature/spec-links",
+        "tasks": [],
+        "gate": "auto",
+        "status": "todo",
+        "pr": []
+      }
+    ],
+    "design": {
+      "_readme": "Design track, runs beside the database work. Tablet kiosk first; phone sizes and iOS/Android conventions are planned before the member app.",
+      "items": [
+        {
+          "id": "U01",
+          "title": "Brand kit: colors, type, spacing, buttons, cards (design tokens)",
+          "tasks": [
+            "w2d"
+          ],
+          "status": "todo"
+        },
+        {
+          "id": "U02",
+          "title": "Clickable kiosk mockup, tablet landscape, fake data; shared by link with Luke M and Carly",
+          "tasks": [
+            "w2d",
+            "w3e"
+          ],
+          "status": "todo"
+        },
+        {
+          "id": "U03",
+          "title": "Port approved tokens and components into the app (one kit, reused everywhere)",
+          "tasks": [
+            "w5a"
+          ],
+          "status": "todo"
+        },
+        {
+          "id": "U04",
+          "title": "Multi-platform plan: tablet and phone sizes; PWA, iOS, Android conventions",
+          "tasks": [
+            "w6a"
+          ],
+          "status": "todo"
+        }
+      ]
+    }
+  }
+}
+</script>
+
+<script>
+(function(){
+  var LS = 'amtd-tracker-v2';
+  var base = JSON.parse(document.getElementById('tracker-data').textContent);
+  var overlay = {};
+  try { overlay = JSON.parse(localStorage.getItem(LS) || '{}'); } catch(e){ overlay = {}; }
+
+  function weeks(){ var out=[]; base.phases.forEach(function(p){p.weeks.forEach(function(w){w._phase=p;out.push(w);});}); return out; }
+  function taskDone(t){ return (overlay.tasks && t.id in overlay.tasks) ? overlay.tasks[t.id] : t.done; }
+  function wkStatus(w){ return (overlay.weeks && overlay.weeks[w.id]) ? overlay.weeks[w.id] : w.status; }
+  function dirtyCount(){ return Object.keys(overlay.tasks||{}).length + Object.keys(overlay.weeks||{}).length; }
+  function saveOverlay(){ try{ localStorage.setItem(LS, JSON.stringify(overlay)); }catch(e){} }
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+
+  var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var DOW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  function d(iso){ var p=iso.split('-'); return new Date(+p[0],+p[1]-1,+p[2]); }
+  function fmt(iso){ var x=d(iso); return MON[x.getMonth()]+' '+x.getDate(); }
+  function fmtDow(iso){ var x=d(iso); return DOW[x.getDay()]+' '+MON[x.getMonth()]+' '+x.getDate(); }
+  var today = new Date(); today.setHours(0,0,0,0);
+  function daysUntil(iso){ return Math.round((d(iso)-today)/86400000); }
+
+  /* health */
+  function scheduledWeek(){ var ws=weeks(); var cur=null;
+    ws.forEach(function(w){ if(d(w.start)<=today) cur=w; }); return cur; }
+  function activeWeek(){ var ws=weeks(); for(var i=0;i<ws.length;i++) if(wkStatus(ws[i])==='active') return ws[i]; return scheduledWeek(); }
+
+  function progress(){ var t=0,dn=0; weeks().forEach(function(w){ w.tasks.forEach(function(x){t++; if(taskDone(x)) dn++;}); }); return {t:t,d:dn,p:t?Math.round(100*dn/t):0}; }
+
+  function ownerChip(o){ var n={K:'Luke K',M:'Luke M',C:'Carly'}[o]||o; return '<span class="own '+o+'">'+n+'</span>'; }
+  function taskRow(t){ var dn=taskDone(t);
+    return '<div class="task'+(dn?' done':'')+'"><input type="checkbox" id="t-'+t.id+'" data-task="'+t.id+'"'+(dn?' checked':'')+'>'+
+      '<label for="t-'+t.id+'">'+esc(t.text)+ownerChip(t.owner)+'</label></div>'; }
+
+  function render(){
+    var pr=progress(), sched=scheduledWeek(), act=activeWeek(), ws=weeks();
+    var pilot=base.milestones.filter(function(m){return m.id==='pilot'})[0];
+    var days=pilot?daysUntil(pilot.date):null;
+    var lag = sched && act ? ws.indexOf(sched)-ws.indexOf(act) : 0;
+    var hc = lag<=0?'ok':(lag===1?'risk':'behind');
+    var ht = lag<=0?'On track':(lag===1?'One week behind':lag+' weeks behind');
+    var cue = act ? ('Working '+(act.n?('week '+act.n):'the foundation')+' · '+
+      act.tasks.filter(function(x){return !taskDone(x)}).length+' tasks open') : '';
+    if(sched && act && sched!==act) cue += ' · the calendar says week '+sched.n;
+    document.getElementById('headline').innerHTML =
+      '<h1>'+(days!==null?(days>0?'Pilot Sunday is <b>'+days+' days</b> out':(days===0?'Pilot Sunday is <b>today</b>':'Pilot launched <b>'+(-days)+' days</b> ago')):'')+
+      (act?(days!==null?' and this is <b>'+(act.n?'week '+act.n:'the foundation')+'</b>.':''):'')+'</h1>'+
+      '<div class="health '+hc+'"><i></i>'+ht+'</div><div class="cue">'+esc(cue)+' · '+fmtDow(today.toISOString().slice(0,10))+'</div>'+
+      '<div class="prog"><div class="track"><div class="fill" style="width:'+pr.p+'%"></div></div>'+
+      '<div class="lab"><span>Build progress</span><span>'+pr.d+' of '+pr.t+' tasks · '+pr.p+'%</span></div></div>';
+
+    /* this week (overview + tab) */
+    var twHtml = act ? act.tasks.map(taskRow).join('') : '<div class="empty">No active week.</div>';
+    document.getElementById('tw-tasks').innerHTML = twHtml;
+    document.getElementById('tw-sub').textContent = act ? (act.title+' · '+fmt(act.start)+' – '+fmt(act.end)) : '';
+    document.getElementById('wk-title').textContent = act ? ((act.n?'Week '+act.n+' — ':'')+act.title) : 'This week';
+    document.getElementById('wk-sub').textContent = act ? (fmt(act.start)+' – '+fmt(act.end)) : '';
+    document.getElementById('wk-body').innerHTML = act ? ('<p style="font-size:.92rem;color:var(--muted);margin-bottom:.6rem">'+esc(act.outcome)+'</p>'+twHtml+
+      (act.notes?'<p class="notes">'+esc(act.notes)+'</p>':'')) : '';
+
+    /* milestones */
+    var nextFound=false;
+    document.getElementById('ov-ms').innerHTML = base.milestones.map(function(m){
+      var dd=daysUntil(m.date), done=m.status==='done'||dd<0&&m.status==='done';
+      var isNext = !done && !nextFound && dd>=0; if(isNext) nextFound=true;
+      return '<div class="ms'+(done?' done':'')+(isNext?' next':'')+'"><div><div class="l">'+esc(m.label)+'</div>'+
+        '<div class="d">'+fmtDow(m.date)+'</div></div>'+
+        (done?'<span class="st done">done</span>':(dd>=0?'<span class="in">in '+dd+' d</span>':'<span class="st slipped">'+(-dd)+' d ago</span>'))+'</div>';
+    }).join('');
+
+    /* needs Martz */
+    var mt=[]; ws.forEach(function(w){ w.tasks.forEach(function(t){ if(t.owner==='M'&&!taskDone(t)) mt.push({w:w,t:t}); }); });
+    document.getElementById('ov-martz').innerHTML = mt.length ? mt.slice(0,6).map(function(x){
+      return '<div class="task"><input type="checkbox" id="m-'+x.t.id+'" data-task="'+x.t.id+'"><label for="m-'+x.t.id+'">'+esc(x.t.text)+
+        '<span class="own">'+(x.w.n?'wk '+x.w.n:'')+' · by '+fmt(x.w.end)+'</span></label></div>'; }).join('') :
+      '<div class="empty">Nothing open. Enjoy the dance.</div>';
+
+    /* log */
+    document.getElementById('ov-log').innerHTML = base.meta.changelog.slice().reverse().slice(0,5).map(function(c){return '<div>'+esc(c)+'</div>'}).join('');
+
+    /* ledger */
+    var L='';
+    base.phases.forEach(function(p){
+      L+='<div class="ph"><div class="ph-h"><h2>'+esc(p.name)+'</h2><span>'+esc(p.window)+' — '+esc(p.outcome)+'</span></div>';
+      p.weeks.forEach(function(w){
+        var st=wkStatus(w), dn=w.tasks.filter(taskDone).length, pct=w.tasks.length?Math.round(100*dn/w.tasks.length):0;
+        if(sched && w===sched) L+='<div class="today"><span>Today · '+fmtDow(today.toISOString().slice(0,10))+'</span><i></i></div>';
+        var ms=base.milestones.filter(function(m){return d(m.date)>=d(w.start)&&d(m.date)<=d(w.end)&&m.id!=='zero'});
+        L+='<div class="wk'+(st==='active'?' open':'')+'" data-week="'+w.id+'"><div class="wk-when"><b>'+(w.n?'Week '+w.n:'Foundation')+'</b>'+fmt(w.start)+' – '+fmt(w.end)+'</div>'+
+          '<div class="wk-main"><h4>'+esc(w.title)+' <span class="st '+st+'">'+(st==='active'?'this week':st)+'</span>'+
+          ms.map(function(m){return '<span class="st slipped" style="background:var(--blue-soft);color:var(--blue)">'+esc(m.label.split(' — ')[0])+'</span>'}).join('')+'</h4>'+
+          '<p>'+esc(w.outcome)+'</p>'+(pct>0&&pct<100?'<div class="mini"><i style="width:'+pct+'%"></i></div>':'')+
+          '<div class="wk-detail">'+w.tasks.map(taskRow).join('')+
+          (w.notes?'<p class="notes">'+esc(w.notes)+'</p>':'')+
+          '<div class="wk-ctl">Status <select data-status="'+w.id+'">'+['planned','active','done','slipped'].map(function(s){return '<option value="'+s+'"'+(s===st?' selected':'')+'>'+s+'</option>'}).join('')+'</select>'+
+          '<span>'+dn+' of '+w.tasks.length+' done</span></div></div></div></div>';
+      });
+      L+='</div>';
+    });
+    document.getElementById('ledger').innerHTML = L;
+
+    /* plan */
+    var m=base.mission;
+    document.getElementById('brief').innerHTML =
+      '<div class="panel"><div class="panel-h"><h3>What we set out to do</h3></div><div class="panel-b"><p><b>The problem.</b> '+esc(m.problem)+'</p><p><b>The goal.</b> '+esc(m.goal)+'</p></div></div>'+
+      '<div class="panel"><div class="panel-h"><h3>What success looks like</h3></div><div class="panel-b"><ul>'+m.success.map(function(s){return '<li>'+esc(s)+'</li>'}).join('')+'</ul></div></div>'+
+      '<div class="panel" style="grid-column:1/-1"><div class="panel-h"><h3>Who does what</h3></div><div class="panel-b">'+m.roles.map(function(r){return '<div class="role"><b>'+esc(r[0])+'</b><span>'+esc(r[1])+'</span></div>'}).join('')+'</div></div>';
+    document.getElementById('phase-cards').innerHTML =
+      base.phases.map(function(p){return '<div class="panel"><div class="panel-b"><h4>'+esc(p.name)+' <span class="st '+(p.status||'planned')+'">'+(p.status||'planned')+'</span></h4><div class="when">'+esc(p.window)+'</div><p>'+esc(p.outcome)+'</p></div></div>'}).join('')+
+      base.horizon.map(function(h){return '<div class="panel"><div class="panel-b"><h4>'+esc(h.name)+'</h4><div class="when">'+esc(h.window)+'</div><p>'+esc(h.text)+'</p></div></div>'}).join('');
+
+    /* dirty state */
+    var n=dirtyCount();
+    var pill=document.getElementById('dirty'); pill.textContent = n?('Unsaved changes ('+n+')'):'Saved'; pill.className='pill'+(n?' dirty':'');
+    document.getElementById('reset').disabled = !n;
+  }
+
+  /* events */
+  document.body.addEventListener('change', function(e){
+    var t=e.target;
+    if(t.dataset.task){ overlay.tasks=overlay.tasks||{}; overlay.tasks[t.dataset.task]=t.checked; saveOverlay(); render(); }
+    if(t.dataset.status){ overlay.weeks=overlay.weeks||{}; overlay.weeks[t.dataset.status]=t.value; saveOverlay(); render(); }
+  });
+  document.getElementById('ledger').addEventListener('click', function(e){
+    if(e.target.closest('.wk-detail')) return;
+    var row=e.target.closest('.wk'); if(row) row.classList.toggle('open');
+  });
+  document.getElementById('tabs').addEventListener('click', function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    [].slice.call(document.querySelectorAll('#tabs button')).forEach(function(x){x.setAttribute('aria-selected', x===b?'true':'false')});
+    [].slice.call(document.querySelectorAll('.view')).forEach(function(v){v.classList.toggle('on', v.id==='v-'+b.dataset.view)});
+    location.hash=b.dataset.view; window.scrollTo(0,0);
+  });
+  document.getElementById('reset').addEventListener('click', function(){ overlay={}; saveOverlay(); render(); });
+  document.getElementById('export').addEventListener('click', function(){
+    var out=JSON.parse(JSON.stringify(base));
+    out.phases.forEach(function(p){p.weeks.forEach(function(w){ delete w._phase; w.status=wkStatus(w); w.tasks.forEach(function(t){t.done=taskDone(t)}); });});
+    out.meta.updated=today.toISOString().slice(0,10);
+    out.meta.changelog.push(out.meta.updated+' — exported from the tracker with '+dirtyCount()+' browser edit(s); paste into the data block and commit.');
+    var txt=JSON.stringify(out,null,2);
+    if(navigator.clipboard) navigator.clipboard.writeText(txt).catch(function(){});
+    var a=document.createElement('a'); a.href='data:application/json;charset=utf-8,'+encodeURIComponent(txt);
+    a.download='amtd-tracker-data.json'; document.body.appendChild(a); a.click(); a.remove();
+    var pill=document.getElementById('dirty'); pill.textContent='Exported — paste into the file and commit'; pill.className='pill';
+  });
+
+  var h=location.hash.replace('#',''); if(h){ var b=document.querySelector('#tabs button[data-view="'+h+'"]'); if(b) b.click(); }
+  render();
+})();
+</script>
+</body>
+</html>
