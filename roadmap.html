@@ -297,7 +297,8 @@ STYLE IS FROZEN. Content only.
       "2026-09-30 — v2 tracker: interactive, plain-language, owner to-dos, health + countdown. Week 1 marked active.",
       "2026-09-30 — Build-first: nothing waits on sign-offs. Prices and policies are built from the July 25 recordings as settings Luke M can change later. Week 1's sit-down became a read-through of the operating facts list; his three remaining to-dos are dated (weeks 4, 5, 6).",
       "2026-09-30 — Security-layer task moved from week 1 to week 2 to match the real build order. One-night comps set aside for later. Paying in the app on your own phone made explicit in week 4. Brand kit and kiosk mockup added to week 2, with a try-it task for Luke M and Carly in week 3.",
-      "2026-09-30 — Added a machine-readable build list for Claude sessions (not shown on the page)."
+      "2026-09-30 — Added a machine-readable build list for Claude sessions (not shown on the page).",
+      "2026-09-30 — GitHub's paid tier moved from week 2 to week 6: it is needed before live payments, not before. Policy and operating-facts documents are written and in review. The database now runs on Luke K's machine."
     ]
   },
   "mission": {
@@ -469,12 +470,6 @@ STYLE IS FROZEN. Content only.
               "done": false
             },
             {
-              "id": "w2c",
-              "text": "Turn on GitHub's paid tier so the main code line is protected before money code lands",
-              "owner": "K",
-              "done": false
-            },
-            {
               "id": "w2d",
               "owner": "K",
               "done": false,
@@ -630,6 +625,12 @@ STYLE IS FROZEN. Content only.
             {
               "id": "w6c",
               "text": "Put it online: hosting, a staging copy, database backups tested",
+              "owner": "K",
+              "done": false
+            },
+            {
+              "id": "w2c",
+              "text": "Turn on GitHub's paid tier so the main code line is protected before real payments go live",
               "owner": "K",
               "done": false
             },
@@ -903,30 +904,29 @@ STYLE IS FROZEN. Content only.
     "blockers": [
       {
         "id": "X1",
-        "status": "open",
+        "status": "closed",
         "owner": "K",
         "blocks": [
           "B02"
         ],
-        "what": "No container runtime on Luke K's Mac, so the local database cannot start. Install Docker Desktop."
+        "what": "Container runtime installed (Docker Desktop); local Supabase starts and the types check passes on a clean database."
       },
       {
         "id": "X2",
-        "status": "open",
+        "status": "pr_open",
         "owner": "K",
         "blocks": [
           "B25"
         ],
-        "what": "Build-first policy not yet in the repo docs (D-037 onward, OPERATING-FACTS.md, waiver draft). Propose, approve, land. Does not block B02-B16: schema and tests do not depend on it."
+        "what": "Build-first policy docs (D-037 to D-044, OPERATING-FACTS.md, WAIVER.md, PAYMENTS-AND-FEES.md) are in amtd-platform PR 3, awaiting Luke K's merge. Does not block B02-B16.",
+        "pr": 3
       },
       {
         "id": "X3",
         "status": "open",
         "owner": "K",
-        "blocks": [
-          "B07"
-        ],
-        "what": "D-035: branch protection (GitHub paid tier, tracker task w2c) must be on before payment-path migrations land."
+        "blocks": [],
+        "what": "D-044 (supersedes D-035's trigger): branch protection is required before the first production deploy that can take live payments (tracker task w2c, now in week 6). Until then: feature branches only, no direct push to main in amtd-platform."
       },
       {
         "id": "X4",
@@ -944,6 +944,13 @@ STYLE IS FROZEN. Content only.
           "w4a"
         ],
         "what": "Member pay-in-app screens (the backend is B17-B22; members buy on their own phone, memberships are app-only per D-032)"
+      },
+      {
+        "tasks": [
+          "w4a",
+          "w6a"
+        ],
+        "what": "Member sign-up, sign-in method, and claiming a profile staff created at the door (OPEN-QUESTIONS Q22). Pay-in-app depends on it."
       },
       {
         "tasks": [
