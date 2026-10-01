@@ -300,7 +300,8 @@ STYLE IS FROZEN. Content only.
       "2026-09-30 — Added a machine-readable build list for Claude sessions (not shown on the page).",
       "2026-09-30 — GitHub's paid tier moved from week 2 to week 6: it is needed before live payments, not before. Policy and operating-facts documents are written and in review. The database now runs on Luke K's machine.",
       "2026-09-30 — Kickoff email with this tracker sent to Luke M. The operating facts list and the open questions go to him in person or in a follow-up. Kiosk design started in Claude Design.",
-      "2026-09-30 — The operating facts, first-draft waiver, and a record of payment fees are written down and merged. Next: the first database migration."
+      "2026-09-30 — The operating facts, first-draft waiver, and a record of payment fees are written down and merged. Next: the first database migration.",
+      "2026-09-30 — First database migration built and in review: the system's fixed vocabularies and the first automated tests."
     ]
   },
   "mission": {
@@ -1012,8 +1013,10 @@ STYLE IS FROZEN. Content only.
           "w1a"
         ],
         "gate": "auto",
-        "status": "todo",
-        "pr": []
+        "status": "pr_open",
+        "pr": [
+          4
+        ]
       },
       {
         "id": "B03",
@@ -1169,7 +1172,8 @@ STYLE IS FROZEN. Content only.
         ],
         "gate": "auto",
         "status": "todo",
-        "pr": []
+        "pr": [],
+        "notes": "From the 0001 cold review: a per-schema 'alter default privileges ... revoke execute on functions from public' does NOT remove Postgres's built-in PUBLIC execute (verified). The spec's 0009 line for schema public therefore does not close new functions by default. Revoke per function and make the object-manifest audit assert it. The 0001 privilege test on schema private changes when 0009 grants authenticated usage."
       },
       {
         "id": "B15",
@@ -1394,9 +1398,7 @@ STYLE IS FROZEN. Content only.
         }
       ]
     },
-    "decided_for_next": [
-      "B02: name the platform-issued receipt_issuer value 'platform' instead of 'amtd' (marked spec amendment in the 0001 PR) — proposed to Luke K, no objection recorded yet"
-    ]
+    "harness": "Set in PR 4. tests/integration/helpers/sql.ts runs one SQL statement through the Supabase CLI as role postgres (bypasses RLS): use it for catalog, constraint and privilege checks only, and cast uuid/numeric/bigint/array columns to text. Authorization tests go through the Supabase JS client as a real role. Unit tests live in src/**/*.test.ts, integration in tests/integration/**/*.test.ts. Empty suites fail."
   }
 }
 </script>
