@@ -303,7 +303,8 @@ STYLE IS FROZEN. Content only.
       "2026-09-30 — The operating facts, first-draft waiver, and a record of payment fees are written down and merged. Next: the first database migration.",
       "2026-09-30 — First database migration built and in review: the system's fixed vocabularies and the first automated tests.",
       "2026-09-30 — First database migration merged: the system's fixed vocabularies, with automated tests running on every change.",
-      "2026-09-30 — One person can now hold more than one role at a studio (a staff member who is also a member, an instructor who is also an owner). The first dancer level is named Newcomer. Building the people-and-studios tables."
+      "2026-09-30 — One person can now hold more than one role at a studio (a staff member who is also a member, an instructor who is also an owner). The first dancer level is named Newcomer. Building the people-and-studios tables.",
+      "2026-09-30 — The people-and-studios tables are built and in review: studios, people, phones and emails, memberships, and the booth's device sessions, each locked down from the moment it exists."
     ]
   },
   "mission": {
@@ -1030,9 +1031,11 @@ STYLE IS FROZEN. Content only.
           "w1a"
         ],
         "gate": "auto",
-        "status": "in_progress",
-        "pr": [],
-        "notes": "Branch feature/0002-identity-tenancy. Spec amended first (commit 7af0ac1): D-046 roles are a set (roles membership_role[]), D-047 dancer level 'newcomer', D-048 RLS enabled and forced at table creation. Implemented by an Opus sub-agent; orchestrator verifies; Fable sub-agent cold-reviews before the PR."
+        "status": "pr_open",
+        "pr": [
+          5
+        ],
+        "notes": "PR 5. Carries D-046 (roles are a set), D-047 (newcomer), D-048 (RLS forced and no default client privileges from table creation). Built by an Opus sub-agent, cold-reviewed by a Fable sub-agent."
       },
       {
         "id": "B04",
@@ -1176,7 +1179,7 @@ STYLE IS FROZEN. Content only.
         "gate": "auto",
         "status": "todo",
         "pr": [],
-        "notes": "From the 0001 cold review: a per-schema 'alter default privileges ... revoke execute on functions from public' does NOT remove Postgres's built-in PUBLIC execute (verified). The spec's 0009 line for schema public therefore does not close new functions by default. Revoke per function and make the object-manifest audit assert it. The 0001 privilege test on schema private changes when 0009 grants authenticated usage."
+        "notes": "From the 0001 cold review: a per-schema 'alter default privileges ... revoke execute on functions from public' does NOT remove Postgres's built-in PUBLIC execute (verified). The spec's 0009 line for schema public therefore does not close new functions by default. Revoke per function and make the object-manifest audit assert it. The 0001 privilege test on schema private changes when 0009 grants authenticated usage. From the 0002 cold review: service_role has no USAGE on schema private, so commands cannot call private.require_staff_actor as the spec writes it; add the grant. Table default privileges for anon and authenticated are already revoked in 0002 (D-048), so 0009 only grants authenticated its selects."
       },
       {
         "id": "B15",
@@ -1204,7 +1207,7 @@ STYLE IS FROZEN. Content only.
         "gate": "auto",
         "status": "todo",
         "pr": [],
-        "notes": "Includes set_membership_roles (D-046) and FN-AUTH-23; the spec had no command to grant a role before."
+        "notes": "Includes set_membership_roles (D-046) and FN-AUTH-23; the spec had no command to grant a role before. set_membership_roles must lock the organization row before the last-admin check (spec amended). Name search must match any word of the name, not only the start."
       },
       {
         "id": "B17",
@@ -1402,7 +1405,7 @@ STYLE IS FROZEN. Content only.
         }
       ]
     },
-    "harness": "Set in PR 4. tests/integration/helpers/sql.ts runs one SQL statement through the Supabase CLI as role postgres (bypasses RLS): use it for catalog, constraint and privilege checks only, and cast uuid/numeric/bigint/array columns to text. Authorization tests go through the Supabase JS client as a real role. Unit tests live in src/**/*.test.ts, integration in tests/integration/**/*.test.ts. Empty suites fail."
+    "harness": "Set in PR 4. tests/integration/helpers/sql.ts runs one SQL statement through the Supabase CLI as role postgres (bypasses RLS): use it for catalog, constraint and privilege checks only, and cast uuid/numeric/bigint/array columns to text. Authorization tests go through the Supabase JS client as a real role. Unit tests live in src/**/*.test.ts, integration in tests/integration/**/*.test.ts. Empty suites fail. tests/integration/helpers/clients.ts gives serviceClient() and anonClient() from 'supabase status -o env'. Fixtures use random keys and must pass twice without a reset. Assert Postgres error code plus constraint name."
   }
 }
 </script>
