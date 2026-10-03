@@ -290,7 +290,7 @@ STYLE IS FROZEN. Content only.
 <script id="tracker-data" type="application/json">
 {
   "meta": {
-    "updated": "2026-10-01",
+    "updated": "2026-10-03",
     "version": "2.0",
     "changelog": [
       "2026-09-23 — v1 calendar created (dance-hall style; kept as roadmap-v1.html).",
@@ -306,7 +306,8 @@ STYLE IS FROZEN. Content only.
       "2026-09-30 — One person can now hold more than one role at a studio (a staff member who is also a member, an instructor who is also an owner). The first dancer level is named Newcomer. Building the people-and-studios tables.",
       "2026-09-30 — The people-and-studios tables are built and in review: studios, people, phones and emails, memberships, and the booth's device sessions, each locked down from the moment it exists.",
       "2026-10-01 — The people-and-studios tables are merged. Building the waiver tables next.",
-      "2026-10-01 — The waiver tables are built and in review: one active waiver text per studio, and signatures that can never be changed or deleted."
+      "2026-10-01 — The waiver tables are built and in review: one active waiver text per studio, and signatures that can never be changed or deleted.",
+      "2026-10-03 — Waiver tables are in review with one reviewer finding fixed. Building the events, classes, and product catalog tables next."
     ]
   },
   "mission": {
@@ -908,7 +909,7 @@ STYLE IS FROZEN. Content only.
     ],
     "repo": "AMTD-software/amtd-platform",
     "spec": "docs/specs/phase-0-schema.md",
-    "next": "B04",
+    "next": "B05",
     "blockers": [
       {
         "id": "X1",
@@ -1065,8 +1066,9 @@ STYLE IS FROZEN. Content only.
           "w1a"
         ],
         "gate": "auto",
-        "status": "todo",
-        "pr": []
+        "status": "in_progress",
+        "pr": [],
+        "notes": "Branch feature/0004-events-catalog, stacked on feature/0003-waivers (PR 6 open, green, Codex finding fixed). One PR for both items. Immutable-after-order trigger lands with the orders table in 0005."
       },
       {
         "id": "B06",
@@ -1078,8 +1080,9 @@ STYLE IS FROZEN. Content only.
           "w1a"
         ],
         "gate": "auto",
-        "status": "todo",
-        "pr": []
+        "status": "in_progress",
+        "pr": [],
+        "notes": "Branch feature/0004-events-catalog, stacked on feature/0003-waivers (PR 6 open, green, Codex finding fixed). One PR for both items. Immutable-after-order trigger lands with the orders table in 0005."
       },
       {
         "id": "B07",
@@ -1411,7 +1414,14 @@ STYLE IS FROZEN. Content only.
         }
       ]
     },
-    "harness": "Set in PR 4. tests/integration/helpers/sql.ts runs one SQL statement through the Supabase CLI as role postgres (bypasses RLS): use it for catalog, constraint and privilege checks only, and cast uuid/numeric/bigint/array columns to text. Authorization tests go through the Supabase JS client as a real role. Unit tests live in src/**/*.test.ts, integration in tests/integration/**/*.test.ts. Empty suites fail. tests/integration/helpers/clients.ts gives serviceClient() and anonClient() from 'supabase status -o env'. Fixtures use random keys and must pass twice without a reset. Assert Postgres error code plus constraint name."
+    "harness": "Set in PR 4. tests/integration/helpers/sql.ts runs one SQL statement through the Supabase CLI as role postgres (bypasses RLS): use it for catalog, constraint and privilege checks only, and cast uuid/numeric/bigint/array columns to text. Authorization tests go through the Supabase JS client as a real role. Unit tests live in src/**/*.test.ts, integration in tests/integration/**/*.test.ts. Empty suites fail. tests/integration/helpers/clients.ts gives serviceClient() and anonClient() from 'supabase status -o env'. Fixtures use random keys and must pass twice without a reset. Assert Postgres error code plus constraint name.",
+    "queued": [
+      {
+        "id": "Q-DB-EXPLAINER",
+        "when": "after migration 0014 (B25) merges",
+        "what": "An artifact for Luke K that explains how the Supabase database system works, for someone with beginner-to-intermediate database and Supabase experience. Asked 2026-10-03."
+      }
+    ]
   }
 }
 </script>
