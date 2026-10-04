@@ -309,7 +309,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-01 — The waiver tables are built and in review: one active waiver text per studio, and signatures that can never be changed or deleted.",
       "2026-10-03 — Waiver tables are in review with one reviewer finding fixed. Building the events, classes, and product catalog tables next.",
       "2026-10-03 — The events, classes, and product catalog tables are built and in review. Next: orders, payments, and class-pack credits.",
-      "2026-10-03 — Waiver tables merged. The orders, payments, and class-pack credit tables are being built."
+      "2026-10-03 — Waiver tables merged. The orders, payments, and class-pack credit tables are being built.",
+      "2026-10-03 — The first money tables are built and in review: orders, first-timer discounts, payments, and the Stripe event inbox, with the rules that stop a payment being recorded twice or history being rewritten."
     ]
   },
   "mission": {
@@ -911,7 +912,7 @@ STYLE IS FROZEN. Content only.
     ],
     "repo": "AMTD-software/amtd-platform",
     "spec": "docs/specs/phase-0-schema.md",
-    "next": "B07",
+    "next": "B09",
     "blockers": [
       {
         "id": "X1",
@@ -1100,9 +1101,11 @@ STYLE IS FROZEN. Content only.
           "w2a"
         ],
         "gate": "auto",
-        "status": "in_progress",
-        "pr": [],
-        "notes": "Built and verified (229 integration tests green twice, FIRST-05 run concurrently); in cold review before the PR. Carries D-052 (provider events follow the §5.1 machine; §4.4 amended). Freeze-after-sale trigger included."
+        "status": "pr_open",
+        "pr": [
+          8
+        ],
+        "notes": "PR 8, stacked on PR 7 (retarget to main after PR 7 merges, before deleting its branch). Carries D-052 and D-053. Cold review found no blockers; its tightenings are in the second commit."
       },
       {
         "id": "B08",
@@ -1114,9 +1117,11 @@ STYLE IS FROZEN. Content only.
           "w2a"
         ],
         "gate": "auto",
-        "status": "in_progress",
-        "pr": [],
-        "notes": "Built and verified (229 integration tests green twice, FIRST-05 run concurrently); in cold review before the PR. Carries D-052 (provider events follow the §5.1 machine; §4.4 amended). Freeze-after-sale trigger included."
+        "status": "pr_open",
+        "pr": [
+          8
+        ],
+        "notes": "PR 8, stacked on PR 7 (retarget to main after PR 7 merges, before deleting its branch). Carries D-052 and D-053. Cold review found no blockers; its tightenings are in the second commit."
       },
       {
         "id": "B09",
@@ -1168,7 +1173,8 @@ STYLE IS FROZEN. Content only.
         ],
         "gate": "auto",
         "status": "todo",
-        "pr": []
+        "pr": [],
+        "notes": "Coverage freeze trigger (0005) must keep sorting before the 0004 scope trigger because it takes the stronger lock first; a new coverage trigger named earlier in the alphabet could reintroduce a lock-upgrade deadlock."
       },
       {
         "id": "B13",
@@ -1305,7 +1311,8 @@ STYLE IS FROZEN. Content only.
         ],
         "gate": "human",
         "status": "todo",
-        "pr": []
+        "pr": [],
+        "notes": "reverse_payment must lock order then attempt, in the same order as confirm_order_paid, or a webhook refund racing a post-checkout confirm can deadlock (spec says the reverse; amend when built)."
       },
       {
         "id": "B23",
