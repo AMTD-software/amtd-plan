@@ -1102,7 +1102,7 @@ STYLE IS FROZEN. Content only.
         "gate": "auto",
         "status": "in_progress",
         "pr": [],
-        "notes": "Branch feature/0005-orders-payments, stacked on feature/0004-events-catalog (PR 7). First money migration: orders, discount claims, payment attempts, provider events, plus the freeze-after-sale trigger carried from 0004. Opus sub-agent implementing; orchestrator verifies; Fable sub-agent cold-reviews."
+        "notes": "Built and verified (229 integration tests green twice, FIRST-05 run concurrently); in cold review before the PR. Carries D-052 (provider events follow the §5.1 machine; §4.4 amended). Freeze-after-sale trigger included."
       },
       {
         "id": "B08",
@@ -1116,7 +1116,7 @@ STYLE IS FROZEN. Content only.
         "gate": "auto",
         "status": "in_progress",
         "pr": [],
-        "notes": "Branch feature/0005-orders-payments, stacked on feature/0004-events-catalog (PR 7). First money migration: orders, discount claims, payment attempts, provider events, plus the freeze-after-sale trigger carried from 0004. Opus sub-agent implementing; orchestrator verifies; Fable sub-agent cold-reviews."
+        "notes": "Built and verified (229 integration tests green twice, FIRST-05 run concurrently); in cold review before the PR. Carries D-052 (provider events follow the §5.1 machine; §4.4 amended). Freeze-after-sale trigger included."
       },
       {
         "id": "B09",
@@ -1237,7 +1237,8 @@ STYLE IS FROZEN. Content only.
         ],
         "gate": "human",
         "status": "todo",
-        "pr": []
+        "pr": [],
+        "notes": "create_order decides whether the first-timer discount applies; the database only allows 0 or the product's discount and one live automatic claim per person. Zero-total orders cannot be paid: attempts require a positive amount equal to the order total."
       },
       {
         "id": "B18",
@@ -1276,7 +1277,8 @@ STYLE IS FROZEN. Content only.
         ],
         "gate": "human",
         "status": "todo",
-        "pr": []
+        "pr": [],
+        "notes": "D-052: the webhook route moves an event verified -> processing and increments attempt_count; confirm_order_paid moves processing -> processed and never counts. The 0005 guards enforce this."
       },
       {
         "id": "B21",
