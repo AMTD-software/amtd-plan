@@ -1068,7 +1068,7 @@ STYLE IS FROZEN. Content only.
         "gate": "auto",
         "status": "in_progress",
         "pr": [],
-        "notes": "Branch feature/0004-events-catalog, stacked on feature/0003-waivers (PR 6 open, green, Codex finding fixed). One PR for both items. Immutable-after-order trigger lands with the orders table in 0005."
+        "notes": "Built and verified (148 integration tests green twice); in cold review before the PR. Commit c573000 also records D-051 (constraints live with their tables; stable-key and nonblank checks on products)."
       },
       {
         "id": "B06",
@@ -1082,7 +1082,7 @@ STYLE IS FROZEN. Content only.
         "gate": "auto",
         "status": "in_progress",
         "pr": [],
-        "notes": "Branch feature/0004-events-catalog, stacked on feature/0003-waivers (PR 6 open, green, Codex finding fixed). One PR for both items. Immutable-after-order trigger lands with the orders table in 0005."
+        "notes": "Built and verified (148 integration tests green twice); in cold review before the PR. Commit c573000 also records D-051 (constraints live with their tables; stable-key and nonblank checks on products)."
       },
       {
         "id": "B07",
@@ -1095,7 +1095,8 @@ STYLE IS FROZEN. Content only.
         ],
         "gate": "auto",
         "status": "todo",
-        "pr": []
+        "pr": [],
+        "notes": "Must add the immutable-after-order trigger on products and coverage (spec §2.13, §2.14), deferred from 0004 because it needs the orders table."
       },
       {
         "id": "B08",
