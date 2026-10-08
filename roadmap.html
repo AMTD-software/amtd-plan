@@ -313,7 +313,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-03 — The first money tables are built and in review: orders, first-timer discounts, payments, and the Stripe event inbox, with the rules that stop a payment being recorded twice or history being rewritten.",
       "2026-10-08 — Review fixes on the money tables: every booth payment and price override must record why. Building the check-in and class-pack credit tables next.",
       "2026-10-08 — Paused for the day with the check-in tables sprint approved and ready to start.",
-      "2026-10-08 — Events, classes, and product catalog tables merged."
+      "2026-10-08 — Events, classes, and product catalog tables merged.",
+      "2026-10-08 — The check-in ledger tables are built and in review: who attended, which pass covered it, class-pack credits that can never be overspent, and append-only corrections."
     ]
   },
   "mission": {
@@ -1138,7 +1139,7 @@ STYLE IS FROZEN. Content only.
         "gate": "auto",
         "status": "in_progress",
         "pr": [],
-        "notes": "Branch feature/0006-entitlements-attendance exists (stacked on PR 8), tree clean; the build was paused on 2026-10-08 before any code was written. Start the implementer fresh: tables per §2.19–§2.22, guards per §3.4 items 6–8, a DEFERRABLE commit-time check that credits_redeemed equals active redemptions, the last-credit race run with two sessions, and the three deferred keys onto orders, claims, memberships."
+        "notes": "Built and verified (305 integration tests green twice; last-credit race run with two real sessions); in cold review before the PR. Carries D-055 (lapsed membership reactivates on a verified paid invoice). Three commit-time rules: counter equals active redemptions; a bundle check-in has its night's redemption; an attendance/redemption reversal commits with its row reversed."
       },
       {
         "id": "B10",
@@ -1152,7 +1153,7 @@ STYLE IS FROZEN. Content only.
         "gate": "auto",
         "status": "in_progress",
         "pr": [],
-        "notes": "Branch feature/0006-entitlements-attendance exists (stacked on PR 8), tree clean; the build was paused on 2026-10-08 before any code was written. Start the implementer fresh: tables per §2.19–§2.22, guards per §3.4 items 6–8, a DEFERRABLE commit-time check that credits_redeemed equals active redemptions, the last-credit race run with two sessions, and the three deferred keys onto orders, claims, memberships."
+        "notes": "Built and verified (305 integration tests green twice; last-credit race run with two real sessions); in cold review before the PR. Carries D-055 (lapsed membership reactivates on a verified paid invoice). Three commit-time rules: counter equals active redemptions; a bundle check-in has its night's redemption; an attendance/redemption reversal commits with its row reversed."
       },
       {
         "id": "B11",
@@ -1345,7 +1346,8 @@ STYLE IS FROZEN. Content only.
         ],
         "gate": "human",
         "status": "todo",
-        "pr": []
+        "pr": [],
+        "notes": "check_in must take FOR SHARE on the chosen grant on the non-bundle paths too (a concurrent revoke can slip between the guard's check and commit); bundle attendance must commit with its night's redemption; expired/revoked packs freeze their counter, so a refund reverses redemptions before revoking."
       },
       {
         "id": "B25",
