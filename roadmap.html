@@ -1318,7 +1318,7 @@ STYLE IS FROZEN. Content only.
         "gate": "human",
         "status": "todo",
         "pr": [],
-        "notes": "reverse_payment must lock order then attempt, in the same order as confirm_order_paid, or a webhook refund racing a post-checkout confirm can deadlock (spec says the reverse; amend when built)."
+        "notes": "reverse_payment must lock order then attempt, in the same order as confirm_order_paid, or a webhook refund racing a post-checkout confirm can deadlock (spec says the reverse; amend when built). Decide before building: an entitlement moves to revoked with no reversal row required at the table (0006 only demands reversals for attendance and redemption); reverse_payment should append the entitlement_revoke reversal anyway, and must skip or return before touching a revoked membership (the guard refuses any change to it with 23514)."
       },
       {
         "id": "B23",
