@@ -315,7 +315,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-08 — Paused for the day with the check-in tables sprint approved and ready to start.",
       "2026-10-08 — Events, classes, and product catalog tables merged.",
       "2026-10-08 — The check-in ledger tables are built and in review: who attended, which pass covered it, class-pack credits that can never be overspent, and append-only corrections.",
-      "2026-10-08 — The check-in ledger tables are in review. Next: receipts, the exception queue, and the audit trail."
+      "2026-10-08 — The check-in ledger tables are in review. Next: receipts, the exception queue, and the audit trail.",
+      "2026-10-08 — The money tables are merged: orders, first-timer discounts, payments, and the Stripe inbox."
     ]
   },
   "mission": {
@@ -472,7 +473,7 @@ STYLE IS FROZEN. Content only.
               "id": "w2a",
               "text": "Add the money side: orders, payments, class-pack credits, check-ins, receipts",
               "owner": "K",
-              "done": false
+              "done": true
             },
             {
               "id": "w1b",
@@ -1106,7 +1107,7 @@ STYLE IS FROZEN. Content only.
           "w2a"
         ],
         "gate": "auto",
-        "status": "pr_open",
+        "status": "merged",
         "pr": [
           8
         ],
@@ -1122,7 +1123,7 @@ STYLE IS FROZEN. Content only.
           "w2a"
         ],
         "gate": "auto",
-        "status": "pr_open",
+        "status": "merged",
         "pr": [
           8
         ],
@@ -1142,7 +1143,7 @@ STYLE IS FROZEN. Content only.
         "pr": [
           9
         ],
-        "notes": "PR 9, stacked on PR 8 (after PR 8 merges: gh pr edit 9 --base main, then delete PR 8's branch). Carries D-055 and D-056. Cold review found no blockers; its tightenings are in the second commit."
+        "notes": "PR 9 against main. Codex raised three findings (paid grants must carry their payment; one grant per order for memberships too; nonblank staff-grant reasons) — being fixed as D-057. Carries D-055, D-056, D-057."
       },
       {
         "id": "B10",
@@ -1158,7 +1159,7 @@ STYLE IS FROZEN. Content only.
         "pr": [
           9
         ],
-        "notes": "PR 9, stacked on PR 8 (after PR 8 merges: gh pr edit 9 --base main, then delete PR 8's branch). Carries D-055 and D-056. Cold review found no blockers; its tightenings are in the second commit."
+        "notes": "PR 9 against main. Codex raised three findings (paid grants must carry their payment; one grant per order for memberships too; nonblank staff-grant reasons) — being fixed as D-057. Carries D-055, D-056, D-057."
       },
       {
         "id": "B11",
