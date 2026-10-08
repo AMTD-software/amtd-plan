@@ -314,7 +314,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-08 — Review fixes on the money tables: every booth payment and price override must record why. Building the check-in and class-pack credit tables next.",
       "2026-10-08 — Paused for the day with the check-in tables sprint approved and ready to start.",
       "2026-10-08 — Events, classes, and product catalog tables merged.",
-      "2026-10-08 — The check-in ledger tables are built and in review: who attended, which pass covered it, class-pack credits that can never be overspent, and append-only corrections."
+      "2026-10-08 — The check-in ledger tables are built and in review: who attended, which pass covered it, class-pack credits that can never be overspent, and append-only corrections.",
+      "2026-10-08 — The check-in ledger tables are in review. Next: receipts, the exception queue, and the audit trail."
     ]
   },
   "mission": {
@@ -916,7 +917,7 @@ STYLE IS FROZEN. Content only.
     ],
     "repo": "AMTD-software/amtd-platform",
     "spec": "docs/specs/phase-0-schema.md",
-    "next": "B09",
+    "next": "B11",
     "blockers": [
       {
         "id": "X1",
@@ -1137,9 +1138,11 @@ STYLE IS FROZEN. Content only.
           "w2a"
         ],
         "gate": "auto",
-        "status": "in_progress",
-        "pr": [],
-        "notes": "Built and verified (305 integration tests green twice; last-credit race run with two real sessions); in cold review before the PR. Carries D-055 (lapsed membership reactivates on a verified paid invoice). Three commit-time rules: counter equals active redemptions; a bundle check-in has its night's redemption; an attendance/redemption reversal commits with its row reversed."
+        "status": "pr_open",
+        "pr": [
+          9
+        ],
+        "notes": "PR 9, stacked on PR 8 (after PR 8 merges: gh pr edit 9 --base main, then delete PR 8's branch). Carries D-055 and D-056. Cold review found no blockers; its tightenings are in the second commit."
       },
       {
         "id": "B10",
@@ -1151,9 +1154,11 @@ STYLE IS FROZEN. Content only.
           "w2a"
         ],
         "gate": "auto",
-        "status": "in_progress",
-        "pr": [],
-        "notes": "Built and verified (305 integration tests green twice; last-credit race run with two real sessions); in cold review before the PR. Carries D-055 (lapsed membership reactivates on a verified paid invoice). Three commit-time rules: counter equals active redemptions; a bundle check-in has its night's redemption; an attendance/redemption reversal commits with its row reversed."
+        "status": "pr_open",
+        "pr": [
+          9
+        ],
+        "notes": "PR 9, stacked on PR 8 (after PR 8 merges: gh pr edit 9 --base main, then delete PR 8's branch). Carries D-055 and D-056. Cold review found no blockers; its tightenings are in the second commit."
       },
       {
         "id": "B11",
