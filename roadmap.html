@@ -1277,9 +1277,9 @@ STYLE IS FROZEN. Content only.
           "w4a"
         ],
         "gate": "human",
-        "status": "todo",
+        "status": "in_progress",
         "pr": [],
-        "notes": "create_order decides whether the first-timer discount applies; the database only allows 0 or the product's discount and one live automatic claim per person. Zero-total orders cannot be paid: attempts require a positive amount equal to the order total. Carry-over from 0007: record_manual_tender's on-screen delivery must set attempted_at and completed_at from one timestamp (completed_at >= attempted_at); the receipt issuer must match the tender (square_pos to square, cash and venmo_qr to platform)."
+        "notes": "create_order decides whether the first-timer discount applies; the database only allows 0 or the product's discount and one live automatic claim per person. Zero-total orders cannot be paid: attempts require a positive amount equal to the order total. Carry-over from 0007: record_manual_tender's on-screen delivery must set attempted_at and completed_at from one timestamp (completed_at >= attempted_at); the receipt issuer must match the tender (square_pos to square, cash and venmo_qr to platform). Outline approved by Luke K on 2026-10-11; human-gate approach review done (Fable: approve with changes, 15 findings, all adopted: Checkout expiry and session amount as parameters, table-key retries, reference reuse per tender, membership-not-Stripe re-check in the shared routine, one-statement paid update, zero-total refusal, discount on single events only, no org lock, product FOR SHARE). Branch feature/0011-order-tender-commands; three commits planned. D-059 (kiosk comps in the pilot) recorded on the branch."
       },
       {
         "id": "B18",
@@ -1291,9 +1291,9 @@ STYLE IS FROZEN. Content only.
           "w4c"
         ],
         "gate": "human",
-        "status": "todo",
+        "status": "in_progress",
         "pr": [],
-        "notes": "Carry-over from 0007: record_manual_tender's on-screen delivery must set attempted_at and completed_at from one timestamp (completed_at >= attempted_at); the receipt issuer must match the tender (square_pos to square, cash and venmo_qr to platform)."
+        "notes": "Carry-over from 0007: record_manual_tender's on-screen delivery must set attempted_at and completed_at from one timestamp (completed_at >= attempted_at); the receipt issuer must match the tender (square_pos to square, cash and venmo_qr to platform). Outline approved by Luke K on 2026-10-11; human-gate approach review done (Fable: approve with changes, 15 findings, all adopted: Checkout expiry and session amount as parameters, table-key retries, reference reuse per tender, membership-not-Stripe re-check in the shared routine, one-statement paid update, zero-total refusal, discount on single events only, no org lock, product FOR SHARE). Branch feature/0011-order-tender-commands; three commits planned. D-059 (kiosk comps in the pilot) recorded on the branch."
       },
       {
         "id": "B19",
