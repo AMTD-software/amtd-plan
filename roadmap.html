@@ -317,7 +317,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-08 — The check-in ledger tables are built and in review: who attended, which pass covered it, class-pack credits that can never be overspent, and append-only corrections.",
       "2026-10-08 — The check-in ledger tables are in review. Next: receipts, the exception queue, and the audit trail.",
       "2026-10-08 — The money tables are merged: orders, first-timer discounts, payments, and the Stripe inbox.",
-      "2026-10-08 — The check-in ledger tables are merged: six of fourteen migrations done. Next: receipts, the exception queue, and the audit trail."
+      "2026-10-08 — The check-in ledger tables are merged: six of fourteen migrations done. Next: receipts, the exception queue, and the audit trail.",
+      "2026-10-10 — Receipts, the exception queue, and the audit trail are in review (PR 10): seven of fourteen migrations built. Next: 0008 indexes and the cyclic-key audit."
     ]
   },
   "mission": {
@@ -1144,7 +1145,7 @@ STYLE IS FROZEN. Content only.
         "pr": [
           9
         ],
-        "notes": "PR 9 against main, green, Codex's three findings fixed (D-057). Carries D-055–D-057. Awaiting Luke K's merge."
+        "notes": "PR 9 against main, green, Codex's three findings fixed (D-057). Carries D-055–D-057. Merged 2026-10-08."
       },
       {
         "id": "B10",
@@ -1160,7 +1161,7 @@ STYLE IS FROZEN. Content only.
         "pr": [
           9
         ],
-        "notes": "PR 9 against main, green, Codex's three findings fixed (D-057). Carries D-055–D-057. Awaiting Luke K's merge."
+        "notes": "PR 9 against main, green, Codex's three findings fixed (D-057). Carries D-055–D-057. Merged 2026-10-08."
       },
       {
         "id": "B11",
@@ -1172,9 +1173,11 @@ STYLE IS FROZEN. Content only.
           "w2a"
         ],
         "gate": "auto",
-        "status": "todo",
-        "pr": [],
-        "notes": "Outline approved by Luke K on 2026-10-08. Branch feature/0007-receipts-audit from main; build in a fresh session."
+        "status": "pr_open",
+        "pr": [
+          10
+        ],
+        "notes": "PR 10 against main, opened 2026-10-10. Built by an Opus implementer (tests first, 40/40 mutations caught); Fable cold review found no blockers; SF-1 (EXECUTE on private.audit_action_requires_reason granted to service_role, revoked from clients) and N-1 (jsonb evidence compared as text) fixed. Reason prefixes: override., payment.manual_, grace., decline., comp., reversal. Exceptions never deleted. Q25 (replacing a voided receipt). Awaiting Codex review and Luke K's merge."
       },
       {
         "id": "B12",
@@ -1215,7 +1218,7 @@ STYLE IS FROZEN. Content only.
         "gate": "auto",
         "status": "todo",
         "pr": [],
-        "notes": "From the 0001 cold review: a per-schema 'alter default privileges ... revoke execute on functions from public' does NOT remove Postgres's built-in PUBLIC execute (verified). The spec's 0009 line for schema public therefore does not close new functions by default. Revoke per function and make the object-manifest audit assert it. The 0001 privilege test on schema private changes when 0009 grants authenticated usage. From the 0002 cold review: service_role has no USAGE on schema private, so commands cannot call private.require_staff_actor as the spec writes it; add the grant. Table default privileges for anon and authenticated are already revoked in 0002 (D-048), so 0009 only grants authenticated its selects."
+        "notes": "From the 0001 cold review: a per-schema 'alter default privileges ... revoke execute on functions from public' does NOT remove Postgres's built-in PUBLIC execute (verified). The spec's 0009 line for schema public therefore does not close new functions by default. Revoke per function and make the object-manifest audit assert it. The 0001 privilege test on schema private changes when 0009 grants authenticated usage. From the 0002 cold review: service_role has no USAGE on schema private, so commands cannot call private.require_staff_actor as the spec writes it; add the grant. Table default privileges for anon and authenticated are already revoked in 0002 (D-048), so 0009 only grants authenticated its selects. Carry-over from 0007: when revoking function privileges, keep private.audit_action_requires_reason executable by service_role (the audit reason trigger's WHEN clause runs it as the inserting role)."
       },
       {
         "id": "B15",
@@ -1230,7 +1233,7 @@ STYLE IS FROZEN. Content only.
         "gate": "auto",
         "status": "todo",
         "pr": [],
-        "notes": "From the 0003 cold review: service_role still holds TRIGGER, REFERENCES and MAINTAIN on every table; grant it only select/insert/update/delete. Default-privilege revokes bind to tables created by the migration role (postgres), not to tables another role creates. Client-role privilege checks should include MAINTAIN."
+        "notes": "From the 0003 cold review: service_role still holds TRIGGER, REFERENCES and MAINTAIN on every table; grant it only select/insert/update/delete. Default-privilege revokes bind to tables created by the migration role (postgres), not to tables another role creates. Client-role privilege checks should include MAINTAIN. Carry-over from 0007: when revoking function privileges, keep private.audit_action_requires_reason executable by service_role (the audit reason trigger's WHEN clause runs it as the inserting role)."
       },
       {
         "id": "B16",
@@ -1244,7 +1247,7 @@ STYLE IS FROZEN. Content only.
         "gate": "auto",
         "status": "todo",
         "pr": [],
-        "notes": "Includes set_membership_roles (D-046) and FN-AUTH-23; the spec had no command to grant a role before. set_membership_roles must lock the organization row before the last-admin check (spec amended). Name search must match any word of the name, not only the start. activate_waiver_version must retire the old version THEN activate the new one, as two statements (the reverse order and a one-statement swap fail on the one-active index), must only activate a draft, and must set activated_at itself. sign_waiver copies the version's hash and must not accept signed_at."
+        "notes": "Includes set_membership_roles (D-046) and FN-AUTH-23; the spec had no command to grant a role before. set_membership_roles must lock the organization row before the last-admin check (spec amended). Name search must match any word of the name, not only the start. activate_waiver_version must retire the old version THEN activate the new one, as two statements (the reverse order and a one-statement swap fail on the one-active index), must only activate a draft, and must set activated_at itself. sign_waiver copies the version's hash and must not accept signed_at. Carry-over from 0007: high-risk audit actions must use the prefixes override., payment.manual_, grace., decline., comp., reversal. (or extend the list in private.audit_action_requires_reason); a human audit row needs actor AND device, so member self-service commands write a system row (both null) or none."
       },
       {
         "id": "B17",
@@ -1258,7 +1261,7 @@ STYLE IS FROZEN. Content only.
         "gate": "human",
         "status": "todo",
         "pr": [],
-        "notes": "create_order decides whether the first-timer discount applies; the database only allows 0 or the product's discount and one live automatic claim per person. Zero-total orders cannot be paid: attempts require a positive amount equal to the order total."
+        "notes": "create_order decides whether the first-timer discount applies; the database only allows 0 or the product's discount and one live automatic claim per person. Zero-total orders cannot be paid: attempts require a positive amount equal to the order total. Carry-over from 0007: record_manual_tender's on-screen delivery must set attempted_at and completed_at from one timestamp (completed_at >= attempted_at); the receipt issuer must match the tender (square_pos to square, cash and venmo_qr to platform)."
       },
       {
         "id": "B18",
@@ -1271,7 +1274,8 @@ STYLE IS FROZEN. Content only.
         ],
         "gate": "human",
         "status": "todo",
-        "pr": []
+        "pr": [],
+        "notes": "Carry-over from 0007: record_manual_tender's on-screen delivery must set attempted_at and completed_at from one timestamp (completed_at >= attempted_at); the receipt issuer must match the tender (square_pos to square, cash and venmo_qr to platform)."
       },
       {
         "id": "B19",
@@ -1298,7 +1302,7 @@ STYLE IS FROZEN. Content only.
         "gate": "human",
         "status": "todo",
         "pr": [],
-        "notes": "D-052: the webhook route moves an event verified -> processing and increments attempt_count; confirm_order_paid moves processing -> processed and never counts. The 0005 guards enforce this."
+        "notes": "D-052: the webhook route moves an event verified -> processing and increments attempt_count; confirm_order_paid moves processing -> processed and never counts. The 0005 guards enforce this. Carry-over from 0007: an operational exception needs at least one related row, so the reconciliation path must write a provider_events row (or name the order) before opening an exception for a Stripe object with no local row."
       },
       {
         "id": "B21",
@@ -1312,7 +1316,8 @@ STYLE IS FROZEN. Content only.
         ],
         "gate": "human",
         "status": "todo",
-        "pr": []
+        "pr": [],
+        "notes": "Carry-over from 0007: an operational exception needs at least one related row, so the reconciliation path must write a provider_events row (or name the order) before opening an exception for a Stripe object with no local row."
       },
       {
         "id": "B22",
@@ -1326,7 +1331,7 @@ STYLE IS FROZEN. Content only.
         "gate": "human",
         "status": "todo",
         "pr": [],
-        "notes": "reverse_payment must lock order then attempt, in the same order as confirm_order_paid, or a webhook refund racing a post-checkout confirm can deadlock (spec says the reverse; amend when built). Decide before building: an entitlement moves to revoked with no reversal row required at the table (0006 only demands reversals for attendance and redemption); reverse_payment should append the entitlement_revoke reversal anyway, and must skip or return before touching a revoked membership (the guard refuses any change to it with 23514)."
+        "notes": "reverse_payment must lock order then attempt, in the same order as confirm_order_paid, or a webhook refund racing a post-checkout confirm can deadlock (spec says the reverse; amend when built). Decide before building: an entitlement moves to revoked with no reversal row required at the table (0006 only demands reversals for attendance and redemption); reverse_payment should append the entitlement_revoke reversal anyway, and must skip or return before touching a revoked membership (the guard refuses any change to it with 23514). Carry-over from 0007: an operational exception needs at least one related row, so the reconciliation path must write a provider_events row (or name the order) before opening an exception for a Stripe object with no local row."
       },
       {
         "id": "B23",
