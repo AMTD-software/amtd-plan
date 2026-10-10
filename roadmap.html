@@ -324,7 +324,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-10 — The tenant-fence audit and door-path indexes are merged (PR 11): eight of fourteen migrations done. Next: row-level security policies (0009).",
       "2026-10-10 — Row-level security is in review (PR 12): members see their own rows, staff the studio's, nobody another studio's; nine of fourteen migrations built.",
       "2026-10-10 — Row-level security is merged (PR 12): nine of fourteen migrations done. Next: the first server commands (0010), pending Luke K's answers on a few spec readings.",
-      "2026-10-11 — The first server commands are in review (PR 13): kiosk sessions, people search and creation, roles, waivers, pricing sign-off, Stripe catalog linking, and events; ten of fourteen migrations built."
+      "2026-10-11 — The first server commands are in review (PR 13): kiosk sessions, people search and creation, roles, waivers, pricing sign-off, Stripe catalog linking, and events; ten of fourteen migrations built.",
+      "2026-10-11 — The first server commands are merged (PR 13): ten of fourteen migrations done. Next: orders and manual tenders (0011), the first money path, with an approach review first."
     ]
   },
   "mission": {
@@ -926,7 +927,7 @@ STYLE IS FROZEN. Content only.
     ],
     "repo": "AMTD-software/amtd-platform",
     "spec": "docs/specs/phase-0-schema.md",
-    "next": "B16",
+    "next": "B17",
     "blockers": [
       {
         "id": "X1",
@@ -1260,11 +1261,11 @@ STYLE IS FROZEN. Content only.
           "w3a"
         ],
         "gate": "auto",
-        "status": "pr_open",
+        "status": "merged",
         "pr": [
           13
         ],
-        "notes": "Includes set_membership_roles (D-046) and FN-AUTH-23; the spec had no command to grant a role before. set_membership_roles must lock the organization row before the last-admin check (spec amended). Name search must match any word of the name, not only the start. activate_waiver_version must retire the old version THEN activate the new one, as two statements (the reverse order and a one-statement swap fail on the one-active index), must only activate a draft, and must set activated_at itself. sign_waiver copies the version's hash and must not accept signed_at. Carry-over from 0007: high-risk audit actions must use the prefixes override., payment.manual_, grace., decline., comp., reversal. (or extend the list in private.audit_action_requires_reason); a human audit row needs actor AND device, so member self-service commands write a system row (both null) or none. Carry-over from 0009: grant service_role execute explicitly on every command and on private.require_staff_actor (the global default now withholds PUBLIC execute; the 0009 catalog test fails until each new function is closed). Before building: settle the §4.2 readings listed in handoff (search result shape, 'seven mappings' is AMTD-specific, catalog link inputs, device-session lifetimes). Outline approved by Luke K on 2026-10-11 with the recommended readings (search result shape; activation requires every non-retired product linked, never a count; livemode refused until D-038; one active session per actor+label; copy never copies attendance). Stripe approved by Martz. Branch feature/0010-identity-commands; three commits planned. PR 13 against main, opened 2026-10-11 (ebd8e25, e5ebbf1, f55390c + fix): 17 functions, 96 tests (642 total). Cold review: one blocker (activate_catalog read audit metadata as price evidence; now takes a server-verified p_verified array), two should-fix (lock order organization → device → target made consistent, same-device deadlock regression test; event-status replay no longer lowers the bar). Q27 (two-studio staff) and Q28 (second pricing decision) opened. Awaiting Codex and Luke K's merge."
+        "notes": "Includes set_membership_roles (D-046) and FN-AUTH-23; the spec had no command to grant a role before. set_membership_roles must lock the organization row before the last-admin check (spec amended). Name search must match any word of the name, not only the start. activate_waiver_version must retire the old version THEN activate the new one, as two statements (the reverse order and a one-statement swap fail on the one-active index), must only activate a draft, and must set activated_at itself. sign_waiver copies the version's hash and must not accept signed_at. Carry-over from 0007: high-risk audit actions must use the prefixes override., payment.manual_, grace., decline., comp., reversal. (or extend the list in private.audit_action_requires_reason); a human audit row needs actor AND device, so member self-service commands write a system row (both null) or none. Carry-over from 0009: grant service_role execute explicitly on every command and on private.require_staff_actor (the global default now withholds PUBLIC execute; the 0009 catalog test fails until each new function is closed). Before building: settle the §4.2 readings listed in handoff (search result shape, 'seven mappings' is AMTD-specific, catalog link inputs, device-session lifetimes). Outline approved by Luke K on 2026-10-11 with the recommended readings (search result shape; activation requires every non-retired product linked, never a count; livemode refused until D-038; one active session per actor+label; copy never copies attendance). Stripe approved by Martz. Branch feature/0010-identity-commands; three commits planned. PR 13 against main, opened 2026-10-11 (ebd8e25, e5ebbf1, f55390c + fix): 17 functions, 96 tests (642 total). Cold review: one blocker (activate_catalog read audit metadata as price evidence; now takes a server-verified p_verified array), two should-fix (lock order organization → device → target made consistent, same-device deadlock regression test; event-status replay no longer lowers the bar). Q27 (two-studio staff) and Q28 (second pricing decision) opened. Codex found three real races (stale authority after the device lock, session-start lock order, signing a retired version), fixed with two-session tests; D-058 records the §4.1 departure. Merged 2026-10-11 (1d5c18b)."
       },
       {
         "id": "B17",
