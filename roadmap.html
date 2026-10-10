@@ -321,7 +321,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-10 — Receipts, the exception queue, and the audit trail are in review (PR 10): seven of fourteen migrations built. Next: 0008 indexes and the cyclic-key audit.",
       "2026-10-10 — Receipts, the exception queue, and the audit trail are merged (PR 10): seven of fourteen migrations done. Next: 0008 indexes and the cyclic-key audit.",
       "2026-10-10 — The tenant-fence audit and the door-path indexes are in review (PR 11): eight of fourteen migrations built. Next: row-level security policies.",
-      "2026-10-10 — The tenant-fence audit and door-path indexes are merged (PR 11): eight of fourteen migrations done. Next: row-level security policies (0009)."
+      "2026-10-10 — The tenant-fence audit and door-path indexes are merged (PR 11): eight of fourteen migrations done. Next: row-level security policies (0009).",
+      "2026-10-10 — Row-level security is in review (PR 12): members see their own rows, staff the studio's, nobody another studio's; nine of fourteen migrations built."
     ]
   },
   "mission": {
@@ -1224,9 +1225,11 @@ STYLE IS FROZEN. Content only.
           "w1b"
         ],
         "gate": "auto",
-        "status": "todo",
-        "pr": [],
-        "notes": "From the 0001 cold review: a per-schema 'alter default privileges ... revoke execute on functions from public' does NOT remove Postgres's built-in PUBLIC execute (verified). The spec's 0009 line for schema public therefore does not close new functions by default. Revoke per function and make the object-manifest audit assert it. The 0001 privilege test on schema private changes when 0009 grants authenticated usage. From the 0002 cold review: service_role has no USAGE on schema private, so commands cannot call private.require_staff_actor as the spec writes it; add the grant. Table default privileges for anon and authenticated are already revoked in 0002 (D-048), so 0009 only grants authenticated its selects. Carry-over from 0007: when revoking function privileges, keep private.audit_action_requires_reason executable by service_role (the audit reason trigger's WHEN clause runs it as the inserting role)."
+        "status": "pr_open",
+        "pr": [
+          12
+        ],
+        "notes": "From the 0001 cold review: a per-schema 'alter default privileges ... revoke execute on functions from public' does NOT remove Postgres's built-in PUBLIC execute (verified). The spec's 0009 line for schema public therefore does not close new functions by default. Revoke per function and make the object-manifest audit assert it. The 0001 privilege test on schema private changes when 0009 grants authenticated usage. From the 0002 cold review: service_role has no USAGE on schema private, so commands cannot call private.require_staff_actor as the spec writes it; add the grant. Table default privileges for anon and authenticated are already revoked in 0002 (D-048), so 0009 only grants authenticated its selects. Carry-over from 0007: when revoking function privileges, keep private.audit_action_requires_reason executable by service_role (the audit reason trigger's WHEN clause runs it as the inserting role). PR 12 against main, opened 2026-10-10 (commit 878d092): six definer helpers executable by authenticated only; USAGE on private for authenticated and service_role; per-function EXECUTE revokes plus the GLOBAL `alter default privileges for role postgres revoke execute on functions from public` (the per-schema form cannot remove PUBLIC execute); service_role trimmed to S/I/U/D; sequence defaults closed. 0010 must grant service_role execute on every command and on private.require_staff_actor. Fable cold review: no blockers, four fixes. Awaiting Codex and merge."
       },
       {
         "id": "B15",
@@ -1239,9 +1242,11 @@ STYLE IS FROZEN. Content only.
           "w2b"
         ],
         "gate": "auto",
-        "status": "todo",
-        "pr": [],
-        "notes": "From the 0003 cold review: service_role still holds TRIGGER, REFERENCES and MAINTAIN on every table; grant it only select/insert/update/delete. Default-privilege revokes bind to tables created by the migration role (postgres), not to tables another role creates. Client-role privilege checks should include MAINTAIN. Carry-over from 0007: when revoking function privileges, keep private.audit_action_requires_reason executable by service_role (the audit reason trigger's WHEN clause runs it as the inserting role)."
+        "status": "pr_open",
+        "pr": [
+          12
+        ],
+        "notes": "From the 0003 cold review: service_role still holds TRIGGER, REFERENCES and MAINTAIN on every table; grant it only select/insert/update/delete. Default-privilege revokes bind to tables created by the migration role (postgres), not to tables another role creates. Client-role privilege checks should include MAINTAIN. Carry-over from 0007: when revoking function privileges, keep private.audit_action_requires_reason executable by service_role (the audit reason trigger's WHEN clause runs it as the inserting role). PR 12 (commit dc6981f): the 25 §3.3 select policies verbatim; RLS-01–25 suite with eight real JWT users across two studios, 53 tests; 23 mutations, two equivalent (nested parent-table policies). Awaiting Codex and merge."
       },
       {
         "id": "B16",
