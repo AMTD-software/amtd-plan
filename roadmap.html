@@ -1385,7 +1385,7 @@ STYLE IS FROZEN. Content only.
         "gate": "human",
         "status": "todo",
         "pr": [],
-        "notes": "check_in must take FOR SHARE on the chosen grant on the non-bundle paths too (a concurrent revoke can slip between the guard's check and commit); bundle attendance must commit with its night's redemption; expired/revoked packs freeze their counter, so a refund reverses redemptions before revoking."
+        "notes": "check_in must take FOR SHARE on the chosen grant on the non-bundle paths too (a concurrent revoke can slip between the guard's check and commit); bundle attendance must commit with its night's redemption; expired/revoked packs freeze their counter, so a refund reverses redemptions before revoking. Carry-over from the 0012 cold review: check_in must take FOR SHARE on the grant it admits under (§4.3 locks only the membership and bundle grants), because a FOR KEY SHARE from its attendance insert does not wait once reverse_payment has already updated the grant to revoked, so a refund-revoke and a check-in on the same grant can both commit. Also consider FOR NO KEY UPDATE on the membership row (0011/0012 notes)."
       },
       {
         "id": "B25",
