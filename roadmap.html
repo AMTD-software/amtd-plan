@@ -330,7 +330,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-11 — The first money path is merged (PR 14): eleven of fourteen migrations done. Next: the Stripe webhook route and provider commands (0012), plus editable prices.",
       "2026-10-11 — The Stripe provider path is in review (PR 15): the event inbox, paid-checkout confirmation, renewals, payment problems, and refunds; twelve of fourteen migrations built.",
       "2026-10-11 — The Stripe provider path is merged (PR 15): twelve of fourteen migrations done. Next: the webhook route, then editable prices.",
-      "2026-10-11 — The Stripe webhook route is in review (PR 16): the first application code; signatures verified by hand, events filed once, every outcome routed to the right place."
+      "2026-10-11 — The Stripe webhook route is in review (PR 16): the first application code; signatures verified by hand, events filed once, every outcome routed to the right place.",
+      "2026-10-11 — The Stripe webhook route is merged (PR 16). Remaining: editable prices, check-in (0013), seed (0014), the kiosk smoke, and the final audit. The orchestrator moves to Opus 5.5 from here."
     ]
   },
   "mission": {
@@ -570,7 +571,7 @@ STYLE IS FROZEN. Content only.
               "id": "w4b",
               "text": "Payment confirmations made bulletproof: duplicates, refunds, and out-of-order messages",
               "owner": "K",
-              "done": false
+              "done": true
             },
             {
               "id": "w4c",
@@ -932,7 +933,7 @@ STYLE IS FROZEN. Content only.
     ],
     "repo": "AMTD-software/amtd-platform",
     "spec": "docs/specs/phase-0-schema.md",
-    "next": "B19",
+    "next": "B23",
     "blockers": [
       {
         "id": "X1",
@@ -966,6 +967,13 @@ STYLE IS FROZEN. Content only.
           "B19"
         ],
         "what": "No Stripe dependency is recorded. Decide SDK vs plain fetch + HMAC and record it in DECISIONS.md before the webhook route."
+      },
+      {
+        "id": "X5",
+        "status": "open",
+        "owner": "K",
+        "blocks": [],
+        "what": "Model switch 2026-10-11: the orchestrator runs on Opus 5.5 from PR 17 onward (Fable usage budget). Keep the two-agent structure (implementer + separate cold reviewer, fresh contexts), Codex on every PR, approach reviews on human-gated items, mutation passes, and the full sequence twice. Consider a one-off Fable cold review for 0013 check_in (B24) and the final audit (B27)."
       }
     ],
     "unspecced": [
@@ -1314,11 +1322,11 @@ STYLE IS FROZEN. Content only.
           "w4b"
         ],
         "gate": "human",
-        "status": "pr_open",
+        "status": "merged",
         "pr": [
           16
         ],
-        "notes": "Reordered after 0012 (PR 16): the route must write the inbox through 0012's receive/begin/finish commands. Q20 recommendation: plain fetch + HMAC-SHA256, no SDK. PR 16 against main, opened 2026-10-11 (c1be9b7 + fix): src/app/api/stripe/webhook/route.ts, src/lib/stripe/{signature,client,projection,webhook}.ts, src/lib/supabase/server.ts; 42 unit + 24 integration tests (793 total); next build in the app CI job. D-069 (no SDK, hand verification, projection hash) and D-070 (outcomes) recorded; Q20 resolved; Q35 opened. Cold review: no blockers; invoice-first amount check, failure logging, non-event bodies, non-UUID metadata fixed. Awaiting Codex and Luke K's merge."
+        "notes": "Reordered after 0012 (PR 16): the route must write the inbox through 0012's receive/begin/finish commands. Q20 recommendation: plain fetch + HMAC-SHA256, no SDK. PR 16 against main, opened 2026-10-11 (c1be9b7 + fix): src/app/api/stripe/webhook/route.ts, src/lib/stripe/{signature,client,projection,webhook}.ts, src/lib/supabase/server.ts; 42 unit + 24 integration tests (793 total); next build in the app CI job. D-069 (no SDK, hand verification, projection hash) and D-070 (outcomes) recorded; Q20 resolved; Q35 opened. Cold review: no blockers; invoice-first amount check, failure logging, non-event bodies, non-UUID metadata fixed. Codex: no findings. Merged 2026-10-11 (3f9e24a)."
       },
       {
         "id": "B20",
