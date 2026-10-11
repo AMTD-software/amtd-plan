@@ -1312,7 +1312,8 @@ STYLE IS FROZEN. Content only.
         ],
         "gate": "human",
         "status": "todo",
-        "pr": []
+        "pr": [],
+        "notes": "Reordered after 0012 (PR 16): the route must write the inbox through 0012's receive/begin/finish commands. Q20 recommendation: plain fetch + HMAC-SHA256, no SDK."
       },
       {
         "id": "B20",
@@ -1324,9 +1325,9 @@ STYLE IS FROZEN. Content only.
           "w4b"
         ],
         "gate": "human",
-        "status": "todo",
+        "status": "in_progress",
         "pr": [],
-        "notes": "D-052: the webhook route moves an event verified -> processing and increments attempt_count; confirm_order_paid moves processing -> processed and never counts. The 0005 guards enforce this. Carry-over from 0007: an operational exception needs at least one related row, so the reconciliation path must write a provider_events row (or name the order) before opening an exception for a Stripe object with no local row."
+        "notes": "D-052: the webhook route moves an event verified -> processing and increments attempt_count; confirm_order_paid moves processing -> processed and never counts. The 0005 guards enforce this. Carry-over from 0007: an operational exception needs at least one related row, so the reconciliation path must write a provider_events row (or name the order) before opening an exception for a Stripe object with no local row. Sprint 12 approved by Luke K on 2026-10-11; PR order revised to migration 0012 first (the route must write through narrow commands that live in 0012), then the webhook route, then editable prices. Human-gate approach review done (Fable: approve with changes, 13 findings, all adopted: renewal takes no grant lock and fulfils in one transaction, ALREADY_COVERED for stale/initial invoices, inbox organization derivation, begin refuses a processing row and is the only counter writer, refund arithmetic floor(amount × unused/granted), staff Stripe refunds carry the refund id, lapsed left to reconciliation). D-062–D-067 wording awaiting Luke K. Branch feature/0012-provider-commands."
       },
       {
         "id": "B21",
@@ -1339,9 +1340,9 @@ STYLE IS FROZEN. Content only.
           "w3c"
         ],
         "gate": "human",
-        "status": "todo",
+        "status": "in_progress",
         "pr": [],
-        "notes": "Carry-over from 0007: an operational exception needs at least one related row, so the reconciliation path must write a provider_events row (or name the order) before opening an exception for a Stripe object with no local row."
+        "notes": "Carry-over from 0007: an operational exception needs at least one related row, so the reconciliation path must write a provider_events row (or name the order) before opening an exception for a Stripe object with no local row. Sprint 12 approved by Luke K on 2026-10-11; PR order revised to migration 0012 first (the route must write through narrow commands that live in 0012), then the webhook route, then editable prices. Human-gate approach review done (Fable: approve with changes, 13 findings, all adopted: renewal takes no grant lock and fulfils in one transaction, ALREADY_COVERED for stale/initial invoices, inbox organization derivation, begin refuses a processing row and is the only counter writer, refund arithmetic floor(amount × unused/granted), staff Stripe refunds carry the refund id, lapsed left to reconciliation). D-062–D-067 wording awaiting Luke K. Branch feature/0012-provider-commands."
       },
       {
         "id": "B22",
@@ -1353,9 +1354,9 @@ STYLE IS FROZEN. Content only.
           "w4b"
         ],
         "gate": "human",
-        "status": "todo",
+        "status": "in_progress",
         "pr": [],
-        "notes": "reverse_payment must lock order then attempt, in the same order as confirm_order_paid, or a webhook refund racing a post-checkout confirm can deadlock (spec says the reverse; amend when built). Decide before building: an entitlement moves to revoked with no reversal row required at the table (0006 only demands reversals for attendance and redemption); reverse_payment should append the entitlement_revoke reversal anyway, and must skip or return before touching a revoked membership (the guard refuses any change to it with 23514). Carry-over from 0007: an operational exception needs at least one related row, so the reconciliation path must write a provider_events row (or name the order) before opening an exception for a Stripe object with no local row."
+        "notes": "reverse_payment must lock order then attempt, in the same order as confirm_order_paid, or a webhook refund racing a post-checkout confirm can deadlock (spec says the reverse; amend when built). Decide before building: an entitlement moves to revoked with no reversal row required at the table (0006 only demands reversals for attendance and redemption); reverse_payment should append the entitlement_revoke reversal anyway, and must skip or return before touching a revoked membership (the guard refuses any change to it with 23514). Carry-over from 0007: an operational exception needs at least one related row, so the reconciliation path must write a provider_events row (or name the order) before opening an exception for a Stripe object with no local row. Sprint 12 approved by Luke K on 2026-10-11; PR order revised to migration 0012 first (the route must write through narrow commands that live in 0012), then the webhook route, then editable prices. Human-gate approach review done (Fable: approve with changes, 13 findings, all adopted: renewal takes no grant lock and fulfils in one transaction, ALREADY_COVERED for stale/initial invoices, inbox organization derivation, begin refuses a processing row and is the only counter writer, refund arithmetic floor(amount × unused/granted), staff Stripe refunds carry the refund id, lapsed left to reconciliation). D-062–D-067 wording awaiting Luke K. Branch feature/0012-provider-commands."
       },
       {
         "id": "B23",
