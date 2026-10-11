@@ -327,7 +327,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-11 — The first server commands are in review (PR 13): kiosk sessions, people search and creation, roles, waivers, pricing sign-off, Stripe catalog linking, and events; ten of fourteen migrations built.",
       "2026-10-11 — The first server commands are merged (PR 13): ten of fourteen migrations done. Next: orders and manual tenders (0011), the first money path, with an approach review first.",
       "2026-10-11 — The first money path is in review (PR 14): orders with the server-decided first-timer discount, Stripe checkout start, and door payments by Square, cash, or Venmo that turn into access and a receipt; eleven of fourteen migrations built.",
-      "2026-10-11 — The first money path is merged (PR 14): eleven of fourteen migrations done. Next: the Stripe webhook route and provider commands (0012), plus editable prices."
+      "2026-10-11 — The first money path is merged (PR 14): eleven of fourteen migrations done. Next: the Stripe webhook route and provider commands (0012), plus editable prices.",
+      "2026-10-11 — The Stripe provider path is in review (PR 15): the event inbox, paid-checkout confirmation, renewals, payment problems, and refunds; twelve of fourteen migrations built."
     ]
   },
   "mission": {
@@ -1325,9 +1326,11 @@ STYLE IS FROZEN. Content only.
           "w4b"
         ],
         "gate": "human",
-        "status": "in_progress",
-        "pr": [],
-        "notes": "D-052: the webhook route moves an event verified -> processing and increments attempt_count; confirm_order_paid moves processing -> processed and never counts. The 0005 guards enforce this. Carry-over from 0007: an operational exception needs at least one related row, so the reconciliation path must write a provider_events row (or name the order) before opening an exception for a Stripe object with no local row. Sprint 12 approved by Luke K on 2026-10-11; PR order revised to migration 0012 first (the route must write through narrow commands that live in 0012), then the webhook route, then editable prices. Human-gate approach review done (Fable: approve with changes, 13 findings, all adopted: renewal takes no grant lock and fulfils in one transaction, ALREADY_COVERED for stale/initial invoices, inbox organization derivation, begin refuses a processing row and is the only counter writer, refund arithmetic floor(amount × unused/granted), staff Stripe refunds carry the refund id, lapsed left to reconciliation). D-062–D-067 wording awaiting Luke K. Branch feature/0012-provider-commands."
+        "status": "pr_open",
+        "pr": [
+          15
+        ],
+        "notes": "D-052: the webhook route moves an event verified -> processing and increments attempt_count; confirm_order_paid moves processing -> processed and never counts. The 0005 guards enforce this. Carry-over from 0007: an operational exception needs at least one related row, so the reconciliation path must write a provider_events row (or name the order) before opening an exception for a Stripe object with no local row. Sprint 12 approved by Luke K on 2026-10-11; PR order revised to migration 0012 first (the route must write through narrow commands that live in 0012), then the webhook route, then editable prices. Human-gate approach review done (Fable: approve with changes, 13 findings, all adopted: renewal takes no grant lock and fulfils in one transaction, ALREADY_COVERED for stale/initial invoices, inbox organization derivation, begin refuses a processing row and is the only counter writer, refund arithmetic floor(amount × unused/granted), staff Stripe refunds carry the refund id, lapsed left to reconciliation). D-062–D-067 wording awaiting Luke K. Branch feature/0012-provider-commands. PR 15 against main, opened 2026-10-11 (3b39d69, 855ac4c, 0da5012 + fix): seven functions, 64 new tests (767 total). Cold review: no blockers; revoked-membership renewal refused with an AMTD code, exception names the matching attempt, route contracts corrected to Stripe's Basil shapes. Disputes never revoke (D-068 proposed). Awaiting Codex, D-062–D-068 wording, and Luke K's merge."
       },
       {
         "id": "B21",
@@ -1340,9 +1343,11 @@ STYLE IS FROZEN. Content only.
           "w3c"
         ],
         "gate": "human",
-        "status": "in_progress",
-        "pr": [],
-        "notes": "Carry-over from 0007: an operational exception needs at least one related row, so the reconciliation path must write a provider_events row (or name the order) before opening an exception for a Stripe object with no local row. Sprint 12 approved by Luke K on 2026-10-11; PR order revised to migration 0012 first (the route must write through narrow commands that live in 0012), then the webhook route, then editable prices. Human-gate approach review done (Fable: approve with changes, 13 findings, all adopted: renewal takes no grant lock and fulfils in one transaction, ALREADY_COVERED for stale/initial invoices, inbox organization derivation, begin refuses a processing row and is the only counter writer, refund arithmetic floor(amount × unused/granted), staff Stripe refunds carry the refund id, lapsed left to reconciliation). D-062–D-067 wording awaiting Luke K. Branch feature/0012-provider-commands."
+        "status": "pr_open",
+        "pr": [
+          15
+        ],
+        "notes": "Carry-over from 0007: an operational exception needs at least one related row, so the reconciliation path must write a provider_events row (or name the order) before opening an exception for a Stripe object with no local row. Sprint 12 approved by Luke K on 2026-10-11; PR order revised to migration 0012 first (the route must write through narrow commands that live in 0012), then the webhook route, then editable prices. Human-gate approach review done (Fable: approve with changes, 13 findings, all adopted: renewal takes no grant lock and fulfils in one transaction, ALREADY_COVERED for stale/initial invoices, inbox organization derivation, begin refuses a processing row and is the only counter writer, refund arithmetic floor(amount × unused/granted), staff Stripe refunds carry the refund id, lapsed left to reconciliation). D-062–D-067 wording awaiting Luke K. Branch feature/0012-provider-commands. PR 15 against main, opened 2026-10-11 (3b39d69, 855ac4c, 0da5012 + fix): seven functions, 64 new tests (767 total). Cold review: no blockers; revoked-membership renewal refused with an AMTD code, exception names the matching attempt, route contracts corrected to Stripe's Basil shapes. Disputes never revoke (D-068 proposed). Awaiting Codex, D-062–D-068 wording, and Luke K's merge."
       },
       {
         "id": "B22",
@@ -1354,9 +1359,11 @@ STYLE IS FROZEN. Content only.
           "w4b"
         ],
         "gate": "human",
-        "status": "in_progress",
-        "pr": [],
-        "notes": "reverse_payment must lock order then attempt, in the same order as confirm_order_paid, or a webhook refund racing a post-checkout confirm can deadlock (spec says the reverse; amend when built). Decide before building: an entitlement moves to revoked with no reversal row required at the table (0006 only demands reversals for attendance and redemption); reverse_payment should append the entitlement_revoke reversal anyway, and must skip or return before touching a revoked membership (the guard refuses any change to it with 23514). Carry-over from 0007: an operational exception needs at least one related row, so the reconciliation path must write a provider_events row (or name the order) before opening an exception for a Stripe object with no local row. Sprint 12 approved by Luke K on 2026-10-11; PR order revised to migration 0012 first (the route must write through narrow commands that live in 0012), then the webhook route, then editable prices. Human-gate approach review done (Fable: approve with changes, 13 findings, all adopted: renewal takes no grant lock and fulfils in one transaction, ALREADY_COVERED for stale/initial invoices, inbox organization derivation, begin refuses a processing row and is the only counter writer, refund arithmetic floor(amount × unused/granted), staff Stripe refunds carry the refund id, lapsed left to reconciliation). D-062–D-067 wording awaiting Luke K. Branch feature/0012-provider-commands."
+        "status": "pr_open",
+        "pr": [
+          15
+        ],
+        "notes": "reverse_payment must lock order then attempt, in the same order as confirm_order_paid, or a webhook refund racing a post-checkout confirm can deadlock (spec says the reverse; amend when built). Decide before building: an entitlement moves to revoked with no reversal row required at the table (0006 only demands reversals for attendance and redemption); reverse_payment should append the entitlement_revoke reversal anyway, and must skip or return before touching a revoked membership (the guard refuses any change to it with 23514). Carry-over from 0007: an operational exception needs at least one related row, so the reconciliation path must write a provider_events row (or name the order) before opening an exception for a Stripe object with no local row. Sprint 12 approved by Luke K on 2026-10-11; PR order revised to migration 0012 first (the route must write through narrow commands that live in 0012), then the webhook route, then editable prices. Human-gate approach review done (Fable: approve with changes, 13 findings, all adopted: renewal takes no grant lock and fulfils in one transaction, ALREADY_COVERED for stale/initial invoices, inbox organization derivation, begin refuses a processing row and is the only counter writer, refund arithmetic floor(amount × unused/granted), staff Stripe refunds carry the refund id, lapsed left to reconciliation). D-062–D-067 wording awaiting Luke K. Branch feature/0012-provider-commands. PR 15 against main, opened 2026-10-11 (3b39d69, 855ac4c, 0da5012 + fix): seven functions, 64 new tests (767 total). Cold review: no blockers; revoked-membership renewal refused with an AMTD code, exception names the matching attempt, route contracts corrected to Stripe's Basil shapes. Disputes never revoke (D-068 proposed). Awaiting Codex, D-062–D-068 wording, and Luke K's merge."
       },
       {
         "id": "B23",
