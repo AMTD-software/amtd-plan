@@ -326,7 +326,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-10 — Row-level security is merged (PR 12): nine of fourteen migrations done. Next: the first server commands (0010), pending Luke K's answers on a few spec readings.",
       "2026-10-11 — The first server commands are in review (PR 13): kiosk sessions, people search and creation, roles, waivers, pricing sign-off, Stripe catalog linking, and events; ten of fourteen migrations built.",
       "2026-10-11 — The first server commands are merged (PR 13): ten of fourteen migrations done. Next: orders and manual tenders (0011), the first money path, with an approach review first.",
-      "2026-10-11 — The first money path is in review (PR 14): orders with the server-decided first-timer discount, Stripe checkout start, and door payments by Square, cash, or Venmo that turn into access and a receipt; eleven of fourteen migrations built."
+      "2026-10-11 — The first money path is in review (PR 14): orders with the server-decided first-timer discount, Stripe checkout start, and door payments by Square, cash, or Venmo that turn into access and a receipt; eleven of fourteen migrations built.",
+      "2026-10-11 — The first money path is merged (PR 14): eleven of fourteen migrations done. Next: the Stripe webhook route and provider commands (0012), plus editable prices."
     ]
   },
   "mission": {
@@ -560,7 +561,7 @@ STYLE IS FROZEN. Content only.
               "id": "w4a",
               "text": "Pay in the app on your own phone — drop-ins, class packs, and memberships — with Apple Pay and Google Pay (Stripe checkout behind it)",
               "owner": "K",
-              "done": false
+              "done": true
             },
             {
               "id": "w4b",
@@ -572,7 +573,7 @@ STYLE IS FROZEN. Content only.
               "id": "w4c",
               "text": "Cash, Venmo-QR, and Square-reader payments recorded at the booth, with receipts",
               "owner": "K",
-              "done": false
+              "done": true
             },
             {
               "id": "w4d",
@@ -928,7 +929,7 @@ STYLE IS FROZEN. Content only.
     ],
     "repo": "AMTD-software/amtd-platform",
     "spec": "docs/specs/phase-0-schema.md",
-    "next": "B17",
+    "next": "B19",
     "blockers": [
       {
         "id": "X1",
@@ -1278,11 +1279,11 @@ STYLE IS FROZEN. Content only.
           "w4a"
         ],
         "gate": "human",
-        "status": "pr_open",
+        "status": "merged",
         "pr": [
           14
         ],
-        "notes": "create_order decides whether the first-timer discount applies; the database only allows 0 or the product's discount and one live automatic claim per person. Zero-total orders cannot be paid: attempts require a positive amount equal to the order total. Carry-over from 0007: record_manual_tender's on-screen delivery must set attempted_at and completed_at from one timestamp (completed_at >= attempted_at); the receipt issuer must match the tender (square_pos to square, cash and venmo_qr to platform). Outline approved by Luke K on 2026-10-11; human-gate approach review done (Fable: approve with changes, 15 findings, all adopted: Checkout expiry and session amount as parameters, table-key retries, reference reuse per tender, membership-not-Stripe re-check in the shared routine, one-statement paid update, zero-total refusal, discount on single events only, no org lock, product FOR SHARE). Branch feature/0011-order-tender-commands; three commits planned. D-059 (kiosk comps in the pilot) recorded on the branch. PR 14 against main, opened 2026-10-11 (63e8252, 30f3c1a, 884fc7e + fix): four functions, 54 new tests (699 total). Cold review: no blockers; released-claim hole closed (AMTD_DISCOUNT_NOT_ELIGIBLE at checkout and in the routine), checkout re-checks the instance, ended nights refused, reference in the tender key match. D-060/D-061 wording awaiting Luke K. Awaiting Codex and merge."
+        "notes": "create_order decides whether the first-timer discount applies; the database only allows 0 or the product's discount and one live automatic claim per person. Zero-total orders cannot be paid: attempts require a positive amount equal to the order total. Carry-over from 0007: record_manual_tender's on-screen delivery must set attempted_at and completed_at from one timestamp (completed_at >= attempted_at); the receipt issuer must match the tender (square_pos to square, cash and venmo_qr to platform). Outline approved by Luke K on 2026-10-11; human-gate approach review done (Fable: approve with changes, 15 findings, all adopted: Checkout expiry and session amount as parameters, table-key retries, reference reuse per tender, membership-not-Stripe re-check in the shared routine, one-statement paid update, zero-total refusal, discount on single events only, no org lock, product FOR SHARE). Branch feature/0011-order-tender-commands; three commits planned. D-059 (kiosk comps in the pilot) recorded on the branch. PR 14 against main, opened 2026-10-11 (63e8252, 30f3c1a, 884fc7e + fix): four functions, 54 new tests (699 total). Cold review: no blockers; released-claim hole closed (AMTD_DISCOUNT_NOT_ELIGIBLE at checkout and in the routine), checkout re-checks the instance, ended nights refused, reference in the tender key match. Codex: four findings (tender switch keeps the discount and cancels the Stripe attempt, ended nights refused at checkout and the door, reference race made deterministic, D-061 recorded before merge), all closed. D-060, D-061 recorded; Q24 resolved; Q30 revised. Merged 2026-10-11 (6d69c93)."
       },
       {
         "id": "B18",
@@ -1294,11 +1295,11 @@ STYLE IS FROZEN. Content only.
           "w4c"
         ],
         "gate": "human",
-        "status": "pr_open",
+        "status": "merged",
         "pr": [
           14
         ],
-        "notes": "Carry-over from 0007: record_manual_tender's on-screen delivery must set attempted_at and completed_at from one timestamp (completed_at >= attempted_at); the receipt issuer must match the tender (square_pos to square, cash and venmo_qr to platform). Outline approved by Luke K on 2026-10-11; human-gate approach review done (Fable: approve with changes, 15 findings, all adopted: Checkout expiry and session amount as parameters, table-key retries, reference reuse per tender, membership-not-Stripe re-check in the shared routine, one-statement paid update, zero-total refusal, discount on single events only, no org lock, product FOR SHARE). Branch feature/0011-order-tender-commands; three commits planned. D-059 (kiosk comps in the pilot) recorded on the branch. PR 14 against main, opened 2026-10-11 (63e8252, 30f3c1a, 884fc7e + fix): four functions, 54 new tests (699 total). Cold review: no blockers; released-claim hole closed (AMTD_DISCOUNT_NOT_ELIGIBLE at checkout and in the routine), checkout re-checks the instance, ended nights refused, reference in the tender key match. D-060/D-061 wording awaiting Luke K. Awaiting Codex and merge."
+        "notes": "Carry-over from 0007: record_manual_tender's on-screen delivery must set attempted_at and completed_at from one timestamp (completed_at >= attempted_at); the receipt issuer must match the tender (square_pos to square, cash and venmo_qr to platform). Outline approved by Luke K on 2026-10-11; human-gate approach review done (Fable: approve with changes, 15 findings, all adopted: Checkout expiry and session amount as parameters, table-key retries, reference reuse per tender, membership-not-Stripe re-check in the shared routine, one-statement paid update, zero-total refusal, discount on single events only, no org lock, product FOR SHARE). Branch feature/0011-order-tender-commands; three commits planned. D-059 (kiosk comps in the pilot) recorded on the branch. PR 14 against main, opened 2026-10-11 (63e8252, 30f3c1a, 884fc7e + fix): four functions, 54 new tests (699 total). Cold review: no blockers; released-claim hole closed (AMTD_DISCOUNT_NOT_ELIGIBLE at checkout and in the routine), checkout re-checks the instance, ended nights refused, reference in the tender key match. Codex: four findings (tender switch keeps the discount and cancels the Stripe attempt, ended nights refused at checkout and the door, reference race made deterministic, D-061 recorded before merge), all closed. D-060, D-061 recorded; Q24 resolved; Q30 revised. Merged 2026-10-11 (6d69c93)."
       },
       {
         "id": "B19",
