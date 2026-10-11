@@ -1380,7 +1380,7 @@ STYLE IS FROZEN. Content only.
       {
         "id": "B23",
         "spec_item": 23,
-        "title": "0013 event-open, grace, decline commands (one-night comp command deferred — proposed D-041)",
+        "title": "0013 event-open, grace, decline, grant_comp (D-059) commands",
         "migration": "0013_access_commands.sql",
         "pr_unit": "feature/0013-access-commands",
         "tasks": [
@@ -1388,8 +1388,9 @@ STYLE IS FROZEN. Content only.
           "w3c"
         ],
         "gate": "human",
-        "status": "todo",
-        "pr": []
+        "status": "in_progress",
+        "pr": [],
+        "notes": "Sprint 13 started 2026-10-11 under Luke K's autonomous grant (Opus builds and reviews; Fable orchestrates; one Fable review at the end). Approach review (Opus): approve with changes; two deadlocks reproduced in §4.3 as written (membership FOR UPDATE vs fulfilment's claim lock; two staff checking each other in) → FOR NO KEY UPDATE; FOR SHARE on the admitted-under grant; claims locked before the discount-conflict check; step 1's attempt join dropped (D-072); grant_comp per D-059 with AMTD_ALREADY_GRANTED; corrections as one reverse_check_in command (D-074). D-071–D-074 recorded tagged for owner review; Q36, Q37 opened. Branch feature/0013-access-commands."
       },
       {
         "id": "B24",
@@ -1402,9 +1403,9 @@ STYLE IS FROZEN. Content only.
           "w3d"
         ],
         "gate": "human",
-        "status": "todo",
+        "status": "in_progress",
         "pr": [],
-        "notes": "check_in must take FOR SHARE on the chosen grant on the non-bundle paths too (a concurrent revoke can slip between the guard's check and commit); bundle attendance must commit with its night's redemption; expired/revoked packs freeze their counter, so a refund reverses redemptions before revoking. Carry-over from the 0012 cold review: check_in must take FOR SHARE on the grant it admits under (§4.3 locks only the membership and bundle grants), because a FOR KEY SHARE from its attendance insert does not wait once reverse_payment has already updated the grant to revoked, so a refund-revoke and a check-in on the same grant can both commit. Also consider FOR NO KEY UPDATE on the membership row (0011/0012 notes)."
+        "notes": "check_in must take FOR SHARE on the chosen grant on the non-bundle paths too (a concurrent revoke can slip between the guard's check and commit); bundle attendance must commit with its night's redemption; expired/revoked packs freeze their counter, so a refund reverses redemptions before revoking. Carry-over from the 0012 cold review: check_in must take FOR SHARE on the grant it admits under (§4.3 locks only the membership and bundle grants), because a FOR KEY SHARE from its attendance insert does not wait once reverse_payment has already updated the grant to revoked, so a refund-revoke and a check-in on the same grant can both commit. Also consider FOR NO KEY UPDATE on the membership row (0011/0012 notes). Sprint 13 started 2026-10-11 under Luke K's autonomous grant (Opus builds and reviews; Fable orchestrates; one Fable review at the end). Approach review (Opus): approve with changes; two deadlocks reproduced in §4.3 as written (membership FOR UPDATE vs fulfilment's claim lock; two staff checking each other in) → FOR NO KEY UPDATE; FOR SHARE on the admitted-under grant; claims locked before the discount-conflict check; step 1's attempt join dropped (D-072); grant_comp per D-059 with AMTD_ALREADY_GRANTED; corrections as one reverse_check_in command (D-074). D-071–D-074 recorded tagged for owner review; Q36, Q37 opened. Branch feature/0013-access-commands."
       },
       {
         "id": "B25",
