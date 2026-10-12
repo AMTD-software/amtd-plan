@@ -335,7 +335,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-11 — The door is in review (PR 17): check-in with its precedence waterfall, comps, grace, declines, and corrections; thirteen of fourteen migrations built.",
       "2026-10-11 — The door is merged (PR 17): check-in, comps, grace, declines, corrections; thirteen of fourteen migrations done. Next: the seed and the first-admin bootstrap (0014).",
       "2026-10-11 — The seed and the first-admin bootstrap are in review (PR 18): all fourteen migrations built. Next: the kiosk routes and the end-to-end smoke.",
-      "2026-10-11 — The seed and the first-admin bootstrap are merged (PR 18): all fourteen migrations are on main. Next: the kiosk routes and the end-to-end smoke."
+      "2026-10-11 — The seed and the first-admin bootstrap are merged (PR 18): all fourteen migrations are on main. Next: the kiosk routes and the end-to-end smoke.",
+      "2026-10-11 — The kiosk routes and the end-to-end smoke are in review (PR 19): the first thing a tablet can actually call, from sign-in to the nightly report."
     ]
   },
   "mission": {
@@ -1443,9 +1444,11 @@ STYLE IS FROZEN. Content only.
           "w5b"
         ],
         "gate": "auto",
-        "status": "in_progress",
-        "pr": [],
-        "notes": "Sprint 15 started 2026-10-11 under the grant. Approach review (Opus, files-only): request-API smoke over kiosk HTTP routes, no pages before Q21; cookie session with server-side refresh, no @supabase/ssr; nightly report from staff RLS reads only; admin retry, lapse write, and Checkout creation deferred to migration 0016 and the member-app sprint. D-076–D-081 recorded tagged for owner review. Branch feature/kiosk-routes."
+        "status": "pr_open",
+        "pr": [
+          19
+        ],
+        "notes": "Sprint 15 started 2026-10-11 under the grant. Approach review (Opus, files-only): request-API smoke over kiosk HTTP routes, no pages before Q21; cookie session with server-side refresh, no @supabase/ssr; nightly report from staff RLS reads only; admin retry, lapse write, and Checkout creation deferred to migration 0016 and the member-app sprint. D-076–D-081 recorded tagged for owner review. Branch feature/kiosk-routes. PR 19 against main, opened 2026-10-11 (fb7d18b, 4311a4e + fix + CI step): sixteen /api/kiosk routes, cookie session with server-side refresh, nightly report from staff RLS reads, Playwright request-API smoke (13 tests) in the db CI job; 89 unit, 936 integration. Cold review (Opus): no blockers; Origin guard against the forwarded host, lock fails closed, UUID device id fixed. D-076–D-081 and D-076a recorded tagged; Q41 opened. Awaiting Codex and CI; merge under the grant."
       },
       {
         "id": "B27",
