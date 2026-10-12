@@ -334,7 +334,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-11 — The Stripe webhook route is merged (PR 16). Remaining: editable prices, check-in (0013), seed (0014), the kiosk smoke, and the final audit. The orchestrator moves to Opus 5.5 from here.",
       "2026-10-11 — The door is in review (PR 17): check-in with its precedence waterfall, comps, grace, declines, and corrections; thirteen of fourteen migrations built.",
       "2026-10-11 — The door is merged (PR 17): check-in, comps, grace, declines, corrections; thirteen of fourteen migrations done. Next: the seed and the first-admin bootstrap (0014).",
-      "2026-10-11 — The seed and the first-admin bootstrap are in review (PR 18): all fourteen migrations built. Next: the kiosk routes and the end-to-end smoke."
+      "2026-10-11 — The seed and the first-admin bootstrap are in review (PR 18): all fourteen migrations built. Next: the kiosk routes and the end-to-end smoke.",
+      "2026-10-11 — The seed and the first-admin bootstrap are merged (PR 18): all fourteen migrations are on main. Next: the kiosk routes and the end-to-end smoke."
     ]
   },
   "mission": {
@@ -592,7 +593,7 @@ STYLE IS FROZEN. Content only.
               "id": "w4e",
               "text": "Create the Stripe products in test mode, using the prices on the operating facts list",
               "owner": "K",
-              "done": false
+              "done": true
             },
             {
               "id": "w4f",
@@ -936,7 +937,7 @@ STYLE IS FROZEN. Content only.
     ],
     "repo": "AMTD-software/amtd-platform",
     "spec": "docs/specs/phase-0-schema.md",
-    "next": "B25",
+    "next": "B26",
     "blockers": [
       {
         "id": "X1",
@@ -1424,11 +1425,11 @@ STYLE IS FROZEN. Content only.
           "w4e"
         ],
         "gate": "auto",
-        "status": "pr_open",
+        "status": "merged",
         "pr": [
           18
         ],
-        "notes": "Sprint 14 started 2026-10-11 under the autonomous grant (gate auto): 0014 carries only bootstrap_admin; supabase/seed.sql holds the §7 rows sourced from OPERATING-FACTS and WAIVER; scripts/bootstrap-admin; double reset must give identical rows. Branch feature/0014-seed. PR 18 against main, opened 2026-10-11 (81e10fa, bdc0623 + fix): bootstrap_admin; the §7 seed sourced from OPERATING-FACTS and WAIVER, idempotent by stable keys, refusing to change an approved catalog or activated waiver; scripts/bootstrap-admin.ts; 26 tests (898 total); double reset identical. Cold review (Opus): no blockers; post-sign-off guard and stricter bootstrap rule fixed. Q38–Q40 opened. Awaiting Codex and CI; merge under the grant."
+        "notes": "Sprint 14 started 2026-10-11 under the autonomous grant (gate auto): 0014 carries only bootstrap_admin; supabase/seed.sql holds the §7 rows sourced from OPERATING-FACTS and WAIVER; scripts/bootstrap-admin; double reset must give identical rows. Branch feature/0014-seed. PR 18 against main, opened 2026-10-11 (81e10fa, bdc0623 + fix): bootstrap_admin; the §7 seed sourced from OPERATING-FACTS and WAIVER, idempotent by stable keys, refusing to change an approved catalog or activated waiver; scripts/bootstrap-admin.ts; 26 tests (898 total); double reset identical. Cold review (Opus): no blockers; post-sign-off guard and stricter bootstrap rule fixed. Q38–Q40 opened. Codex: one finding (stale coverage rows reconciled while draft), fixed. Merged 2026-10-11 (a38897d). All fourteen migrations merged."
       },
       {
         "id": "B26",
@@ -1442,8 +1443,9 @@ STYLE IS FROZEN. Content only.
           "w5b"
         ],
         "gate": "auto",
-        "status": "todo",
-        "pr": []
+        "status": "in_progress",
+        "pr": [],
+        "notes": "Sprint 15 started 2026-10-11 under the grant. Approach review (Opus, files-only): request-API smoke over kiosk HTTP routes, no pages before Q21; cookie session with server-side refresh, no @supabase/ssr; nightly report from staff RLS reads only; admin retry, lapse write, and Checkout creation deferred to migration 0016 and the member-app sprint. D-076–D-081 recorded tagged for owner review. Branch feature/kiosk-routes."
       },
       {
         "id": "B27",
