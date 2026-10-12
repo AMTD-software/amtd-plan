@@ -332,7 +332,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-11 — The Stripe provider path is merged (PR 15): twelve of fourteen migrations done. Next: the webhook route, then editable prices.",
       "2026-10-11 — The Stripe webhook route is in review (PR 16): the first application code; signatures verified by hand, events filed once, every outcome routed to the right place.",
       "2026-10-11 — The Stripe webhook route is merged (PR 16). Remaining: editable prices, check-in (0013), seed (0014), the kiosk smoke, and the final audit. The orchestrator moves to Opus 5.5 from here.",
-      "2026-10-11 — The door is in review (PR 17): check-in with its precedence waterfall, comps, grace, declines, and corrections; thirteen of fourteen migrations built."
+      "2026-10-11 — The door is in review (PR 17): check-in with its precedence waterfall, comps, grace, declines, and corrections; thirteen of fourteen migrations built.",
+      "2026-10-11 — The door is merged (PR 17): check-in, comps, grace, declines, corrections; thirteen of fourteen migrations done. Next: the seed and the first-admin bootstrap (0014)."
     ]
   },
   "mission": {
@@ -524,25 +525,25 @@ STYLE IS FROZEN. Content only.
               "id": "w3a",
               "text": "Check-in logic: covered by membership, a class pack, or needs to pay tonight?",
               "owner": "K",
-              "done": false
+              "done": true
             },
             {
               "id": "w3b",
               "text": "Free-entry list for helpers and instructors, with the reason recorded",
               "owner": "K",
-              "done": false
+              "done": true
             },
             {
               "id": "w3c",
               "text": "Card-failed flow: Admit or Decline buttons at the booth, fully logged",
               "owner": "K",
-              "done": false
+              "done": true
             },
             {
               "id": "w3d",
               "text": "Stress test: a class pack can never be overspent, even under a rush",
               "owner": "K",
-              "done": false
+              "done": true
             },
             {
               "id": "w3e",
@@ -934,7 +935,7 @@ STYLE IS FROZEN. Content only.
     ],
     "repo": "AMTD-software/amtd-platform",
     "spec": "docs/specs/phase-0-schema.md",
-    "next": "B23",
+    "next": "B25",
     "blockers": [
       {
         "id": "X1",
@@ -1389,11 +1390,11 @@ STYLE IS FROZEN. Content only.
           "w3c"
         ],
         "gate": "human",
-        "status": "pr_open",
+        "status": "merged",
         "pr": [
           17
         ],
-        "notes": "Sprint 13 started 2026-10-11 under Luke K's autonomous grant (Opus builds and reviews; Fable orchestrates; one Fable review at the end). Approach review (Opus): approve with changes; two deadlocks reproduced in §4.3 as written (membership FOR UPDATE vs fulfilment's claim lock; two staff checking each other in) → FOR NO KEY UPDATE; FOR SHARE on the admitted-under grant; claims locked before the discount-conflict check; step 1's attempt join dropped (D-072); grant_comp per D-059 with AMTD_ALREADY_GRANTED; corrections as one reverse_check_in command (D-074). D-071–D-074 recorded tagged for owner review; Q36, Q37 opened. Branch feature/0013-access-commands. PR 17 against main, opened 2026-10-11 (f367771, e235b91, 0478416 + fix): five commands, 73 new tests (866 total). Cold review (Opus): one blocker inherited from §4.3 (a pack or membership bought after a night started was refused; D-075 grant overlap), concurrent key reuse in the decision commands caught, residue-dependent plan test fixed. D-071–D-075 recorded tagged for owner review; Q36, Q37 opened. Awaiting Codex and CI; merge under the autonomous grant."
+        "notes": "Sprint 13 started 2026-10-11 under Luke K's autonomous grant (Opus builds and reviews; Fable orchestrates; one Fable review at the end). Approach review (Opus): approve with changes; two deadlocks reproduced in §4.3 as written (membership FOR UPDATE vs fulfilment's claim lock; two staff checking each other in) → FOR NO KEY UPDATE; FOR SHARE on the admitted-under grant; claims locked before the discount-conflict check; step 1's attempt join dropped (D-072); grant_comp per D-059 with AMTD_ALREADY_GRANTED; corrections as one reverse_check_in command (D-074). D-071–D-074 recorded tagged for owner review; Q36, Q37 opened. Branch feature/0013-access-commands. PR 17 against main, opened 2026-10-11 (f367771, e235b91, 0478416 + fix): five commands, 73 new tests (866 total). Cold review (Opus): one blocker inherited from §4.3 (a pack or membership bought after a night started was refused; D-075 grant overlap), concurrent key reuse in the decision commands caught, residue-dependent plan test fixed. D-071–D-075 recorded tagged for owner review; Q36, Q37 opened. Codex: two findings (lifecycle state locked FOR SHARE in the grant commands and at check_in's gate), fixed. Merged 2026-10-11 (b19b7c4)."
       },
       {
         "id": "B24",
@@ -1406,11 +1407,11 @@ STYLE IS FROZEN. Content only.
           "w3d"
         ],
         "gate": "human",
-        "status": "pr_open",
+        "status": "merged",
         "pr": [
           17
         ],
-        "notes": "check_in must take FOR SHARE on the chosen grant on the non-bundle paths too (a concurrent revoke can slip between the guard's check and commit); bundle attendance must commit with its night's redemption; expired/revoked packs freeze their counter, so a refund reverses redemptions before revoking. Carry-over from the 0012 cold review: check_in must take FOR SHARE on the grant it admits under (§4.3 locks only the membership and bundle grants), because a FOR KEY SHARE from its attendance insert does not wait once reverse_payment has already updated the grant to revoked, so a refund-revoke and a check-in on the same grant can both commit. Also consider FOR NO KEY UPDATE on the membership row (0011/0012 notes). Sprint 13 started 2026-10-11 under Luke K's autonomous grant (Opus builds and reviews; Fable orchestrates; one Fable review at the end). Approach review (Opus): approve with changes; two deadlocks reproduced in §4.3 as written (membership FOR UPDATE vs fulfilment's claim lock; two staff checking each other in) → FOR NO KEY UPDATE; FOR SHARE on the admitted-under grant; claims locked before the discount-conflict check; step 1's attempt join dropped (D-072); grant_comp per D-059 with AMTD_ALREADY_GRANTED; corrections as one reverse_check_in command (D-074). D-071–D-074 recorded tagged for owner review; Q36, Q37 opened. Branch feature/0013-access-commands. PR 17 against main, opened 2026-10-11 (f367771, e235b91, 0478416 + fix): five commands, 73 new tests (866 total). Cold review (Opus): one blocker inherited from §4.3 (a pack or membership bought after a night started was refused; D-075 grant overlap), concurrent key reuse in the decision commands caught, residue-dependent plan test fixed. D-071–D-075 recorded tagged for owner review; Q36, Q37 opened. Awaiting Codex and CI; merge under the autonomous grant."
+        "notes": "check_in must take FOR SHARE on the chosen grant on the non-bundle paths too (a concurrent revoke can slip between the guard's check and commit); bundle attendance must commit with its night's redemption; expired/revoked packs freeze their counter, so a refund reverses redemptions before revoking. Carry-over from the 0012 cold review: check_in must take FOR SHARE on the grant it admits under (§4.3 locks only the membership and bundle grants), because a FOR KEY SHARE from its attendance insert does not wait once reverse_payment has already updated the grant to revoked, so a refund-revoke and a check-in on the same grant can both commit. Also consider FOR NO KEY UPDATE on the membership row (0011/0012 notes). Sprint 13 started 2026-10-11 under Luke K's autonomous grant (Opus builds and reviews; Fable orchestrates; one Fable review at the end). Approach review (Opus): approve with changes; two deadlocks reproduced in §4.3 as written (membership FOR UPDATE vs fulfilment's claim lock; two staff checking each other in) → FOR NO KEY UPDATE; FOR SHARE on the admitted-under grant; claims locked before the discount-conflict check; step 1's attempt join dropped (D-072); grant_comp per D-059 with AMTD_ALREADY_GRANTED; corrections as one reverse_check_in command (D-074). D-071–D-074 recorded tagged for owner review; Q36, Q37 opened. Branch feature/0013-access-commands. PR 17 against main, opened 2026-10-11 (f367771, e235b91, 0478416 + fix): five commands, 73 new tests (866 total). Cold review (Opus): one blocker inherited from §4.3 (a pack or membership bought after a night started was refused; D-075 grant overlap), concurrent key reuse in the decision commands caught, residue-dependent plan test fixed. D-071–D-075 recorded tagged for owner review; Q36, Q37 opened. Codex: two findings (lifecycle state locked FOR SHARE in the grant commands and at check_in's gate), fixed. Merged 2026-10-11 (b19b7c4)."
       },
       {
         "id": "B25",
@@ -1422,8 +1423,9 @@ STYLE IS FROZEN. Content only.
           "w4e"
         ],
         "gate": "auto",
-        "status": "todo",
-        "pr": []
+        "status": "in_progress",
+        "pr": [],
+        "notes": "Sprint 14 started 2026-10-11 under the autonomous grant (gate auto): 0014 carries only bootstrap_admin; supabase/seed.sql holds the §7 rows sourced from OPERATING-FACTS and WAIVER; scripts/bootstrap-admin; double reset must give identical rows. Branch feature/0014-seed."
       },
       {
         "id": "B26",
