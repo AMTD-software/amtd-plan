@@ -338,7 +338,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-11 — The seed and the first-admin bootstrap are merged (PR 18): all fourteen migrations are on main. Next: the kiosk routes and the end-to-end smoke.",
       "2026-10-11 — The kiosk routes and the end-to-end smoke are in review (PR 19): the first thing a tablet can actually call, from sign-in to the nightly report.",
       "2026-10-11 — The kiosk routes and the end-to-end smoke are merged (PR 19). Two items added to the plan: editable prices (0015) and the operations commands (0016), both before the final audit.",
-      "2026-10-12 — Editable prices (0015) are built and reviewed, not yet committed; paused for the night. Next: one small fix, then PR 20."
+      "2026-10-12 — Editable prices (0015) are built and reviewed, not yet committed; paused for the night. Next: one small fix, then PR 20.",
+      "2026-10-18 — Editable prices are in review (PR 20): the admin-owner can draft, approve, link, and activate a new price without a migration; old versions stay behind the grants that bought them."
     ]
   },
   "mission": {
@@ -1460,9 +1461,11 @@ STYLE IS FROZEN. Content only.
         "pr_unit": "feature/0015-catalog-versions",
         "tasks": [],
         "gate": "human",
-        "status": "in_progress",
-        "pr": [],
-        "notes": "Added 2026-10-11 at Luke K's request (prices must be editable). Approach review (Opus, files-only) adopted: per-version approval columns on products with a backfill before the freeze trigger; one draft per key; status trigger; create/update/retire version commands; sign-off re-runnable for new drafts; link needs the version's approval; activation retires the predecessor in a separate statement; staff RLS reads retired versions. D-082–D-085 recorded tagged; Q42 opened. 2026-10-12: built (Opus, tests first, 30/30 mutations caught), orchestrator's clean-database run green (988 integration, 13 e2e, build), cold review done (no blockers; one should-fix: staff RLS must require the version's approval; small notes). Paused uncommitted on the branch to save tokens; resume with the fix round, two commits, PR 20."
+        "status": "in_review",
+        "pr": [
+          20
+        ],
+        "notes": "Added 2026-10-11 at Luke K's request (prices must be editable). Approach review (Opus, files-only) adopted: per-version approval columns on products with a backfill before the freeze trigger; one draft per key; status trigger; create/update/retire version commands; sign-off re-runnable for new drafts; link needs the version's approval; activation retires the predecessor in a separate statement; staff RLS reads retired versions. D-082–D-085 recorded tagged; Q42 opened. 2026-10-12: built (Opus, tests first, 30/30 mutations caught), orchestrator's clean-database run green (988 integration, 13 e2e, build), cold review done (no blockers; one should-fix: staff RLS must require the version's approval; small notes). Paused uncommitted on the branch to save tokens; resume with the fix round, two commits, PR 20. Built by Opus (tests first, 30/30 mutations caught), cold-reviewed by a fresh Opus context, 991 integration + 13 e2e green from a clean database. PR 20 open 2026-10-18. Awaiting Codex and CI; merge under the grant."
       },
       {
         "id": "B30",
