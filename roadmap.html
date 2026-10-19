@@ -345,7 +345,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-19 — The operations commands are merged (PR 21). Next: the security audit (every table and function checked against a manifest) and the spec links.",
       "2026-10-19 — The spec now links to the migrations instead of duplicating their SQL (PR 22); D-090 records the review-fix amendments for owner review.",
       "2026-10-19 — The security audit and the final review are in (PR 23): every table and function is checked against a manifest in CI, no invariant was violated, and one refund edge on renewed memberships now goes to review.",
-      "2026-10-19 — The build block is done (PR 23): every table and function is audited against a manifest in CI, the final review found no invariant violated, and the decisions taken under the autonomous grant (D-071 to D-091) await Luke Kerner's review. Next: the app surfaces, starting with the kiosk screens (Q21)."
+      "2026-10-19 — The build block is done (PR 23): every table and function is audited against a manifest in CI, the final review found no invariant violated, and the decisions taken under the autonomous grant (D-071 to D-091) await Luke Kerner's review. Next: the app surfaces, starting with the kiosk screens (Q21).",
+      "2026-10-19 — Luke Kerner reviewed the grant decisions: everyone moves to a new price at their next billing date (D-084 reversed), refunds end access, grace and free nights are counted and flagged at 3, and the hosted-database bootstrap gets its own session (Q39)."
     ]
   },
   "mission": {
@@ -947,7 +948,7 @@ STYLE IS FROZEN. Content only.
     ],
     "repo": "AMTD-software/amtd-platform",
     "spec": "docs/specs/phase-0-schema.md",
-    "next": null,
+    "next": "B31",
     "blockers": [
       {
         "id": "X1",
@@ -1514,6 +1515,18 @@ STYLE IS FROZEN. Content only.
           22
         ],
         "notes": "Six spec SQL blocks compared with the migrations and replaced by links; three needed D-090 to record review-fix amendments. PR 22 open 2026-10-19. Codex: D-090 now names the audit-reason function exception and records the standing-comp change as broadened access. Merged 2026-10-19 (217acef)."
+      },
+      {
+        "id": "B31",
+        "spec_item": null,
+        "title": "0018 owner-review outcomes: door rules (comp/grace while open, grace counts flagged at 3, payment-problem pack stop), payment-problem lapse after 60 days, refunds end access, everyone moves to a new price at next billing",
+        "migration": "0018_owner_review_rules.sql",
+        "pr_unit": "feature/0018-owner-review",
+        "tasks": [],
+        "gate": "human",
+        "status": "in_progress",
+        "pr": [],
+        "notes": "Added 2026-10-19 from Luke Kerner's review of D-071 to D-091 and Q43 to Q46. D-084 reversed; D-091 superseded; D-090(d) approved; Q45 yes; Q46 kept as is."
       }
     ],
     "design": {
@@ -1560,6 +1573,11 @@ STYLE IS FROZEN. Content only.
         "id": "Q-DB-EXPLAINER",
         "when": "after migration 0014 (B25) merges",
         "what": "An artifact for Luke K that explains how the Supabase database system works, for someone with beginner-to-intermediate database and Supabase experience. Asked 2026-10-03."
+      },
+      {
+        "id": "Q39-HOSTED-BOOTSTRAP",
+        "when": "its own session before the first live Sunday",
+        "what": "Plan and rehearse how the seed and the first admin-owner reach the hosted Supabase database exactly once (who runs it, from where, with which credentials, how to verify), and write it into RUNBOOK.md. Asked 2026-10-19."
       }
     ]
   }
