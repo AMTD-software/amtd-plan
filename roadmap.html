@@ -344,7 +344,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-19 — The operations commands are in review (PR 21): a daily sweep ends lapsed memberships and expired passes, an admin can retry a failed Stripe event, and close an exception.",
       "2026-10-19 — The operations commands are merged (PR 21). Next: the security audit (every table and function checked against a manifest) and the spec links.",
       "2026-10-19 — The spec now links to the migrations instead of duplicating their SQL (PR 22); D-090 records the review-fix amendments for owner review.",
-      "2026-10-19 — The security audit and the final review are in (PR 23): every table and function is checked against a manifest in CI, no invariant was violated, and one refund edge on renewed memberships now goes to review."
+      "2026-10-19 — The security audit and the final review are in (PR 23): every table and function is checked against a manifest in CI, no invariant was violated, and one refund edge on renewed memberships now goes to review.",
+      "2026-10-19 — The build block is done (PR 23): every table and function is audited against a manifest in CI, the final review found no invariant violated, and the decisions taken under the autonomous grant (D-071 to D-091) await Luke Kerner's review. Next: the app surfaces, starting with the kiosk screens (Q21)."
     ]
   },
   "mission": {
@@ -946,7 +947,7 @@ STYLE IS FROZEN. Content only.
     ],
     "repo": "AMTD-software/amtd-platform",
     "spec": "docs/specs/phase-0-schema.md",
-    "next": "B27",
+    "next": null,
     "blockers": [
       {
         "id": "X1",
@@ -1494,11 +1495,11 @@ STYLE IS FROZEN. Content only.
         "pr_unit": "feature/security-audit",
         "tasks": [],
         "gate": "auto",
-        "status": "in_review",
+        "status": "merged",
         "pr": [
           23
         ],
-        "notes": "Object-manifest audit (25 tables, 84 functions, 16 mutations caught), final review against I1-I10 by Fable (no invariant violated; F1 fixed by migration 0017; F2 to Q45), 1,042 integration + 14 e2e green. PR 23 open 2026-10-19."
+        "notes": "Object-manifest audit (25 tables, 84 functions, 16 mutations caught), final review against I1-I10 by Fable (no invariant violated; F1 fixed by migration 0017; F2 to Q45), 1,042 integration + 14 e2e green. PR 23 open 2026-10-19. Codex: the manifest now names a two-tenant test for every exposed function. Merged 2026-10-19 (7fd459d). The build block is done."
       },
       {
         "id": "B28",
