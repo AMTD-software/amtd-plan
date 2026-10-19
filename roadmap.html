@@ -342,7 +342,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-18 — Editable prices are in review (PR 20): the admin-owner can draft, approve, link, and activate a new price without a migration; old versions stay behind the grants that bought them.",
       "2026-10-18 — Editable prices are merged (PR 20). Next: the operations commands (0016): the nightly lapse/expiry sweep, admin retry of a failed Stripe event, and closing an exception.",
       "2026-10-19 — The operations commands are in review (PR 21): a daily sweep ends lapsed memberships and expired passes, an admin can retry a failed Stripe event, and close an exception.",
-      "2026-10-19 — The operations commands are merged (PR 21). Next: the security audit (every table and function checked against a manifest) and the spec links."
+      "2026-10-19 — The operations commands are merged (PR 21). Next: the security audit (every table and function checked against a manifest) and the spec links.",
+      "2026-10-19 — The spec now links to the migrations instead of duplicating their SQL (PR 22); D-090 records the review-fix amendments for owner review."
     ]
   },
   "mission": {
@@ -1503,11 +1504,11 @@ STYLE IS FROZEN. Content only.
         "pr_unit": "feature/spec-links",
         "tasks": [],
         "gate": "auto",
-        "status": "in_review",
+        "status": "merged",
         "pr": [
           22
         ],
-        "notes": "Six spec SQL blocks compared with the migrations and replaced by links; three needed D-090 to record review-fix amendments. PR 22 open 2026-10-19."
+        "notes": "Six spec SQL blocks compared with the migrations and replaced by links; three needed D-090 to record review-fix amendments. PR 22 open 2026-10-19. Codex: D-090 now names the audit-reason function exception and records the standing-comp change as broadened access. Merged 2026-10-19 (217acef)."
       }
     ],
     "design": {
