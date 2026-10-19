@@ -343,7 +343,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-18 — Editable prices are merged (PR 20). Next: the operations commands (0016): the nightly lapse/expiry sweep, admin retry of a failed Stripe event, and closing an exception.",
       "2026-10-19 — The operations commands are in review (PR 21): a daily sweep ends lapsed memberships and expired passes, an admin can retry a failed Stripe event, and close an exception.",
       "2026-10-19 — The operations commands are merged (PR 21). Next: the security audit (every table and function checked against a manifest) and the spec links.",
-      "2026-10-19 — The spec now links to the migrations instead of duplicating their SQL (PR 22); D-090 records the review-fix amendments for owner review."
+      "2026-10-19 — The spec now links to the migrations instead of duplicating their SQL (PR 22); D-090 records the review-fix amendments for owner review.",
+      "2026-10-19 — The security audit and the final review are in (PR 23): every table and function is checked against a manifest in CI, no invariant was violated, and one refund edge on renewed memberships now goes to review."
     ]
   },
   "mission": {
@@ -1493,8 +1494,11 @@ STYLE IS FROZEN. Content only.
         "pr_unit": "feature/security-audit",
         "tasks": [],
         "gate": "auto",
-        "status": "todo",
-        "pr": []
+        "status": "in_review",
+        "pr": [
+          23
+        ],
+        "notes": "Object-manifest audit (25 tables, 84 functions, 16 mutations caught), final review against I1-I10 by Fable (no invariant violated; F1 fixed by migration 0017; F2 to Q45), 1,042 integration + 14 e2e green. PR 23 open 2026-10-19."
       },
       {
         "id": "B28",
