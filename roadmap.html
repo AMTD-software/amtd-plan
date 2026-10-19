@@ -346,7 +346,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-19 — The spec now links to the migrations instead of duplicating their SQL (PR 22); D-090 records the review-fix amendments for owner review.",
       "2026-10-19 — The security audit and the final review are in (PR 23): every table and function is checked against a manifest in CI, no invariant was violated, and one refund edge on renewed memberships now goes to review.",
       "2026-10-19 — The build block is done (PR 23): every table and function is audited against a manifest in CI, the final review found no invariant violated, and the decisions taken under the autonomous grant (D-071 to D-091) await Luke Kerner's review. Next: the app surfaces, starting with the kiosk screens (Q21).",
-      "2026-10-19 — Luke Kerner reviewed the grant decisions: everyone moves to a new price at their next billing date (D-084 reversed), refunds end access, grace and free nights are counted and flagged at 3, and the hosted-database bootstrap gets its own session (Q39)."
+      "2026-10-19 — Luke Kerner reviewed the grant decisions: everyone moves to a new price at their next billing date (D-084 reversed), refunds end access, grace and free nights are counted and flagged at 3, and the hosted-database bootstrap gets its own session (Q39).",
+      "2026-10-19 — The owner-review rules are in review (PR 24): late comps and grace are tracked and flagged at 3, a card-problem member's pack is never spent silently, refunds end access, and everyone moves to a new price at their next billing date."
     ]
   },
   "mission": {
@@ -1524,9 +1525,11 @@ STYLE IS FROZEN. Content only.
         "pr_unit": "feature/0018-owner-review",
         "tasks": [],
         "gate": "human",
-        "status": "in_progress",
-        "pr": [],
-        "notes": "Added 2026-10-19 from Luke Kerner's review of D-071 to D-091 and Q43 to Q46. D-084 reversed; D-091 superseded; D-090(d) approved; Q45 yes; Q46 kept as is."
+        "status": "in_review",
+        "pr": [
+          24
+        ],
+        "notes": "Added 2026-10-19 from Luke Kerner's review of D-071 to D-091 and Q43 to Q46. D-084 reversed; D-091 superseded; D-090(d) approved; Q45 yes; Q46 kept as is. Approach review (no blockers), implementer tests-first (30/30 mutations), cold review (no blockers), 1,102 integration + 14 e2e green from a clean database. PR 24 open 2026-10-19; Luke merges."
       }
     ],
     "design": {
