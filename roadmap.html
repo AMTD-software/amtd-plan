@@ -290,7 +290,7 @@ STYLE IS FROZEN. Content only.
 <script id="tracker-data" type="application/json">
 {
   "meta": {
-    "updated": "2026-10-08",
+    "updated": "2026-10-21",
     "version": "2.0",
     "changelog": [
       "2026-09-23 — v1 calendar created (dance-hall style; kept as roadmap-v1.html).",
@@ -348,7 +348,8 @@ STYLE IS FROZEN. Content only.
       "2026-10-19 — The build block is done (PR 23): every table and function is audited against a manifest in CI, the final review found no invariant violated, and the decisions taken under the autonomous grant (D-071 to D-091) await Luke Kerner's review. Next: the app surfaces, starting with the kiosk screens (Q21).",
       "2026-10-19 — Luke Kerner reviewed the grant decisions: everyone moves to a new price at their next billing date (D-084 reversed), refunds end access, grace and free nights are counted and flagged at 3, and the hosted-database bootstrap gets its own session (Q39).",
       "2026-10-19 — The owner-review rules are in review (PR 24): late comps and grace are tracked and flagged at 3, a card-problem member's pack is never spent silently, refunds end access, and everyone moves to a new price at their next billing date.",
-      "2026-10-19 — The owner-review rules are merged (PR 24). Next: the Q39 hosted-bootstrap session, then the kiosk screens."
+      "2026-10-19 — The owner-review rules are merged (PR 24). Next: the Q39 hosted-bootstrap session, then the kiosk screens.",
+      "2026-10-21 — Catch-up: weeks 1–3 marked done and week 4 active to match the calendar; the nightly add-up report is ticked (built and merged in PR 19); the Stripe-library blocker is closed (decided 2026-10-11)."
     ]
   },
   "mission": {
@@ -468,7 +469,7 @@ STYLE IS FROZEN. Content only.
           "n": 1,
           "start": "2026-09-28",
           "end": "2026-10-04",
-          "status": "active",
+          "status": "done",
           "title": "Database core",
           "outcome": "A database that knows who everyone is and what studio they belong to.",
           "tasks": [
@@ -497,7 +498,7 @@ STYLE IS FROZEN. Content only.
           "n": 2,
           "start": "2026-10-05",
           "end": "2026-10-11",
-          "status": "planned",
+          "status": "done",
           "title": "Database complete",
           "outcome": "Every table live; proven that one studio can never see another's data.",
           "tasks": [
@@ -532,7 +533,7 @@ STYLE IS FROZEN. Content only.
           "n": 3,
           "start": "2026-10-12",
           "end": "2026-10-18",
-          "status": "planned",
+          "status": "done",
           "title": "The check-in brain",
           "outcome": "The door decides correctly, even when two people tap at once.",
           "tasks": [
@@ -574,7 +575,7 @@ STYLE IS FROZEN. Content only.
           "n": 4,
           "start": "2026-10-19",
           "end": "2026-10-25",
-          "status": "planned",
+          "status": "active",
           "title": "Taking money",
           "outcome": "Every way to pay works, and every night adds up.",
           "tasks": [
@@ -600,7 +601,7 @@ STYLE IS FROZEN. Content only.
               "id": "w4d",
               "text": "Nightly 'does it all add up' report",
               "owner": "K",
-              "done": false
+              "done": true
             },
             {
               "id": "w4e",
@@ -978,12 +979,12 @@ STYLE IS FROZEN. Content only.
       },
       {
         "id": "X4",
-        "status": "open",
+        "status": "closed",
         "owner": "K",
         "blocks": [
           "B19"
         ],
-        "what": "No Stripe dependency is recorded. Decide SDK vs plain fetch + HMAC and record it in DECISIONS.md before the webhook route."
+        "what": "No Stripe dependency is recorded. Decide SDK vs plain fetch + HMAC and record it in DECISIONS.md before the webhook route. Resolved by D-069 (2026-10-11): plain fetch with hand-verified signatures, no Stripe SDK."
       },
       {
         "id": "X5",
